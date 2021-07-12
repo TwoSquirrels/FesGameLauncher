@@ -18,7 +18,7 @@ Insert gif or link to demo
   
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[Apache License, Version 2.0](/LICENSE)
 
   
 ## Usage/Examples
