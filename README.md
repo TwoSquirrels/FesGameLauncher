@@ -19,7 +19,7 @@ Insert gif or link to demo
 ## License
 
 [Apache License, Version 2.0](/LICENSE)
-
+<!--
   
 ## Usage/Examples
 
@@ -49,7 +49,7 @@ Answer 1
 #### Question 2
 
 Answer 2
-
+-->
   
 ## Authors
 
