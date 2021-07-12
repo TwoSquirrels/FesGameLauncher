@@ -53,7 +53,7 @@ Answer 2
   
 ## Authors
 
-- [@katherinepeterson](https://www.github.com/octokatherine)
+- [@りすりす/TwoSquirrels](https://github.com/TwoSquirrels)
 
   
 ## Acknowledgements
