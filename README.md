@@ -93,10 +93,29 @@ Answer 2
   
 ## Contributing
 
-Contributions are always welcome!
+このプロジェクトは皆様からの貢献を歓迎します。
 
-See `contributing.md` for ways to get started.
+お手伝いをいただくには、以下の方法があります:
 
-Please adhere to this project's `code of conduct`.
+  
+### バグを見つけたとき、または新機能の案があるとき
+
+バグを見つけた場合は、GitHubアカウントを持っている場合は[Issue](https://github.com/TwoSquirrels/FesGameLauncher/issues)に投稿、
+
+持っていない場合はFeedbackの連絡先にご連絡をお願いします。
+
+  
+### あなたがGitHubのアカウントを持っているプログラマーで、プログラミングを手伝いたいとき
+
+1. Supportの連絡先にその旨を連絡し許可を得る。
+2. このプロジェクトをフォークする。
+3. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
+4. そのブランチでその機能を作る。
+5. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
+6. 新機能が完成しこのプロジェクトに反映させたい場合は、このプロジェクトの進捗を上の方法で取り込む。
+7. 自分のブランチからこのプロジェクトの`develop`ブランチへのプルリクエストを送る。
+8. レビューを受ける。
+9. 修正依頼があれば修正する。
+10. 問題がなければ無事、このプロジェクトにマージコミットが作られ反映されます！
 
   
