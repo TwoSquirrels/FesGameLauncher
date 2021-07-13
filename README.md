@@ -81,7 +81,7 @@ Answer 2
   
 ## Support
 
-For support, email fake@fake.com or join our Slack channel.
+サポートが必要な場合はフィードバックと同様の連絡先に連絡をお願いします。
 
   
 ## Tech Stack
