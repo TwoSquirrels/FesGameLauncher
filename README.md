@@ -75,7 +75,8 @@ Answer 2
   
 ## Feedback
 
-If you have any feedback, please reach out to us at fake@fake.com
+フィードバックがある場合、`Twitter:`[@TwoSquirrels](https://twitter.com/)または  
+[プロフィール](https://github.com/TwoSquirrels)にある連絡先にご連絡ください。
 
   
 ## Support
