@@ -86,9 +86,9 @@ Answer 2
   
 ## Tech Stack
 
-**Client:** React, Redux, TailwindCSS
+**PC Client:** Electron
 
-**Server:** Node, Express
+**Web Client:** GitHub Pages
 
   
 ## Contributing
