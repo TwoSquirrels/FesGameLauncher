@@ -58,9 +58,19 @@ Answer 2
   
 ## Acknowledgements
 
- - [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
- - [Awesome README](https://github.com/matiassingers/awesome-readme)
- - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
+  
+### Document
+
+- [readme.so](https://readme.so/)
+
+  
+### Program
+
+- [Getting Started with JxBrowser](https://jxbrowser-support.teamdev.com/docs/quickstart/#quick-start-gradle-view-javafx)
+
+  
+### GUI
+
 
   
 ## Feedback
