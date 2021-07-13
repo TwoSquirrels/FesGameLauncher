@@ -58,9 +58,19 @@ Answer 2
   
 ## Acknowledgements
 
- - [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
- - [Awesome README](https://github.com/matiassingers/awesome-readme)
- - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
+  
+### Document
+
+- [readme.so](https://readme.so/)
+
+  
+### Program
+
+- [日頃お世話になっているElectronのアプリ開発に入門してみる - Qiita](https://qiita.com/y-tsutsu/items/179717ecbdcc27509e5a)
+
+  
+### GUI
+
 
   
 ## Feedback
