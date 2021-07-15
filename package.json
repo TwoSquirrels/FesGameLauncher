@@ -1,0 +1,35 @@
+{
+  "name": "fesgamelauncher",
+  "version": "1.0.0-SNAPSHOT",
+  "description": "Game launcher for school festival",
+  "main": "src/build/build.js",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "nw": "^0.54.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nw"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
+  },
+  "keywords": [
+    "NW.js"
+  ],
+  "author": "TwoSquirrels",
+  "license": "Apache-2.0",
+  "licenseURL": "https://www.apache.org/licenses/LICENSE-2.0",
+  "bugs": {
+    "url": "https://github.com/TwoSquirrels/FesGameLauncher/issues"
+  },
+  "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
+  "window": {
+    "min_width": 480,
+    "min_height": 640,
+    "icon": "resources/icon32.png"
+  }
+}
