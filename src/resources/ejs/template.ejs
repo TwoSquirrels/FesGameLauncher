@@ -1,0 +1,83 @@
+<%- "<!DOCTYPE html>" %><% const creation = new Date(); const websiteOrArticle = isArticle ? "article" : "website"; %>
+<!---
+ProjectName: <%= projectName %>
+FileName: <%= fileName %>
+Encoding: <%= encoding %>
+Author: <%= author %>
+CreationDate: <%= new Intl.DateTimeFormat('en-US', { month: "short" }).format(creation) %> <%= creation.getDate() %>, <%= creation.getFullYear() %>
+Copyright: (c) <%= creation.getFullYear() %> <%= author %>
+License:
+  name: <%= license.name %>
+  url: <%= license.url %>
+--->
+
+<html lang="ja">
+
+<head
+    prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/ fb# <%= websiteOrArticle %>: http://ogp.me/ns/ <%= websiteOrArticle %>#">
+
+  <!-- meta -->
+  <meta charset="utf-8"/>
+  <meta http-equiv="content-language" content="ja"/>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="Content-Style-Type" content="text/css"/>
+  <meta name="keywords" content="<%= keywords.join() %>"/>
+  <meta name="description" content="<%= description %>"/>
+  <meta name="author" content="<%= author %>"/>
+  <meta name="theme-color" content="#<%= color %>"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="#<%= color %>"/>
+
+  <!-- ogp -->
+  <meta property="og:url" content="<%= url %>"/>
+  <meta property="og:type" content="<%= websiteOrArticle %>"/>
+  <meta property="og:title" content="<%= title %>"/>
+  <meta property="og:description" content="<%= description %>"/>
+  <meta property="og:site_name" content="<%= author %>"/>
+  <meta property="og:image" content="<%= thumbnail %>?<%= randomUUID %>"/>
+  <!-- twitter -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:site" content="@<%= twitter %>"/>
+
+  <!-- main head -->
+  <title><%= title %></title>
+  <link id="favicon" rel="icon" href="<%= icon %>" type="image/x-icon"/>
+
+  <!-- page constant -->
+  <style><!--
+  :root {
+  }
+
+  /* --header-bg: url(""); */
+  }
+  --></style>
+  <!-- stylesheets -->
+  <link rel="stylesheet"
+        href="https://necolas.github.io/normalize.css/latest/normalize.css"/>
+  <link rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="/resources/css/style.css"/>
+  <!-- javascript -->
+  <script src="/resources/js/script.js" defer><!--
+  // javascript code here
+  //-->
+  </script>
+</head>
+<body>
+<header>
+</header>
+<menu>
+</menu>
+<main>
+</main>
+<footer>
+  <div class="container">
+    <div class="sns">
+
+    </div>
+    <small class="copyright">&copy; <%= creation.getFullYear() %> <%= author %></small>
+  </div>
+</footer>
+</body>
+</html>
