@@ -28,6 +28,7 @@ fs.writeFileSync(__dirname + "/build/index.html", ejs.render(template, {
   randomUUID: uuid.v4(),
   twitter: "TwoSquirrels",
   icon: "/icon.ico",
+  body: "<small>&copy; 2021 TwoSquirrels</small>",
 }));
 
 nw.Window.open("/build/index.html", {}, function(win) {});
