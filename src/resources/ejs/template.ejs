@@ -1,4 +1,7 @@
-<%- "<!DOCTYPE html>" %><% const creation = new Date(); const websiteOrArticle = isArticle ? "article" : "website"; %>
+<%
+const creation = new Date();
+const websiteOrArticle = isArticle ? "article" : "website";
+%><!DOCTYPE html>
 <!---
 ProjectName: <%= projectName %>
 FileName: <%= fileName %>
@@ -47,10 +50,9 @@ License:
   <!-- page constant -->
   <style><!--
   :root {
+    /* --header-bg: url(""); */
   }
 
-  /* --header-bg: url(""); */
-  }
   --></style>
   <!-- stylesheets -->
   <link rel="stylesheet"
@@ -65,19 +67,6 @@ License:
   </script>
 </head>
 <body>
-<header>
-</header>
-<menu>
-</menu>
-<main>
-</main>
-<footer>
-  <div class="container">
-    <div class="sns">
-
-    </div>
-    <small class="copyright">&copy; <%= creation.getFullYear() %> <%= author %></small>
-  </div>
-</footer>
+<%- body %>
 </body>
 </html>
