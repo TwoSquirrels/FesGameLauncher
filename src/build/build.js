@@ -4,8 +4,11 @@ const ejs = require("ejs");
 const fs = require("fs");
 const uuid = require("uuid");
 
-const template = fs.readFileSync(__dirname + "/src/resources/ejs/template.ejs", "utf8");
+const template = fs.readFileSync(__dirname + "/src/main/ejs/template.ejs", "utf8");
 
+fs.mkdir(__dirname + "/build", { recursive: true }, err => {
+  if (err) throw err;
+});
 fs.writeFileSync(__dirname + "/build/index.html", ejs.render(template, {
   projectName: package_json.name,
   fileName: "index.html",
