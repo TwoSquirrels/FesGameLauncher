@@ -10,7 +10,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nw"
   },
   "repository": {
@@ -28,6 +27,7 @@
   },
   "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
   "window": {
+    "toolbar": true,
     "min_width": 480,
     "min_height": 640,
     "icon": "resources/icon32.png"
