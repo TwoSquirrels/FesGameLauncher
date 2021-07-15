@@ -86,7 +86,7 @@ Answer 2
   
 ## Tech Stack
 
-**PC Client:** JavaFx, JxBrowser
+**PC Client:** NW.js
 
 **Web Client:** GitHub Pages
 
