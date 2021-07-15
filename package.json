@@ -10,7 +10,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "nw"
+    "start": "nw & killall node"
   },
   "repository": {
     "type": "git",
