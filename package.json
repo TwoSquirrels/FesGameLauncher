@@ -2,15 +2,19 @@
   "name": "fesgamelauncher",
   "version": "1.0.0-SNAPSHOT",
   "description": "Game launcher for school festival",
-  "main": "src/build/build.js",
+  "main": "src/main/node/main.js",
   "dependencies": {
     "ejs": "^3.1.6",
     "nw": "^0.54.1",
+    "nw-builder": "^3.5.7",
     "uuid": "^8.3.2"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "nw & killall node"
+    "build": "node build_script/build.js",
+    "test": "nw && killall nw",
+    "start": "npm run build test && npm run test",
+    "release": "nwbuild -p win32,win64,osx64,linux32,linux64 -o build/nw/ dist/"
   },
   "repository": {
     "type": "git",
