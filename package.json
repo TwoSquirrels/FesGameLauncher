@@ -5,25 +5,42 @@
   "main": "src/main/node/main.js",
   "dependencies": {
     "ejs": "^3.1.6",
+    "fs-extra": "^10.0.0",
+    "log4js": "^6.3.0",
     "nw": "^0.54.1",
-    "nw-builder": "^3.5.7",
     "uuid": "^8.3.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nw-builder": "^3.5.7"
+  },
+  "build": {
+    "files": "./build/nw/**",
+    "version": "0.54.1",
+    "flavor": "normal",
+    "platforms": [
+      "win32",
+      "win64",
+      "osx64",
+      "linux32",
+      "linux64"
+    ],
+    "appName": null,
+    "appVersion": null,
+    "buildDir": "./dist",
+    "cacheDir": "./.cache",
+    "buildType": "versioned",
+    "winIco": "./build/nw/resources/icon32.png"
+  },
   "scripts": {
     "build": "node build_script/build.js",
-    "test": "nw && killall nw",
+    "test": "echo Remote debugging on http://localhost:9222/ && nw --remote-debugging-port=9222 && killall nw",
     "start": "npm run build test && npm run test",
-    "release": "nwbuild -p win32,win64,osx64,linux32,linux64 -o build/nw/ dist/"
+    "release": "node release.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
-  },
+  "repository": "TwoSquirrels",
   "keywords": [
     "NW.js"
   ],
-  "author": "TwoSquirrels",
   "license": "Apache-2.0",
   "licenseURL": "https://www.apache.org/licenses/LICENSE-2.0",
   "bugs": {

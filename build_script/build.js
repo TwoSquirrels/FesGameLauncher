@@ -7,15 +7,33 @@
   const package_json = require(repsep(`${projectDir}/package.json`));
 
   const ejs = require("ejs");
-  const fs = require("fs");
+  const fs = require("fs-extra");
   const uuid = require("uuid");
 
   const template =
     fs.readFileSync(repsep(`${projectDir}/src/main/ejs/template.ejs`), "utf8");
 
-  fs.rmdirSync(repsep(`${projectDir}/build`), {recursive: true});
-  fs.mkdirSync(repsep(`${projectDir}/build/nw`), {recursive: true});
-  fs.mkdirSync(repsep(`${projectDir}/build/web`), {recursive: true});
+  fs.removeSync(repsep(`${projectDir}/build`));
+  fs.mkdirsSync(repsep(`${projectDir}/build/nw`));
+  fs.mkdirsSync(repsep(`${projectDir}/build/web`));
+  fs.copySync(repsep(`${projectDir}/src/main`), repsep(`${projectDir}/build/nw`));
+  fs.copySync(repsep(`${projectDir}/src/resources`), repsep(`${projectDir}/build/nw/resources`));
+  fs.writeFileSync(
+    repsep(`${projectDir}/build/nw/package.json`),
+    JSON.stringify({
+      name: package_json.name,
+      version: package_json.version,
+      description: package_json.description,
+      main: "./node/main.js",
+      repository: package_json.repository,
+      author: package_json.author,
+      license: package_json.license,
+      licenseURL: package_json.licenseURL,
+      bugs: package_json.bugs,
+      homepage: package_json.homepage,
+      window: package_json.window,
+    }, undefined, 2)
+  );
   fs.writeFileSync(
     repsep(`${projectDir}/build/nw/index.html`),
     ejs.render(template, {
