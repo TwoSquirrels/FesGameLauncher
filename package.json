@@ -1,0 +1,55 @@
+{
+  "name": "fesgamelauncher",
+  "version": "1.0.0-SNAPSHOT",
+  "description": "文化祭のためのゲームランチャー",
+  "scripts": {
+    "build": "ts-node build.ts build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
+  },
+  "keywords": [
+    "Electron"
+  ],
+  "author": "TwoSquirrels",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/TwoSquirrels/FesGameLauncher/issues"
+  },
+  "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
+  "site": {
+    "name": "浅野物理部の自作ゲーム置き場",
+    "version": "",
+    "message": "何見てんねん",
+    "url": "https://asanobuturi.github.com/FesGameLauncher/"
+  },
+  "libs": {
+    "sanitize_css": {
+      "version": "12.0.1",
+      "path": "src/libs/sanitize.css-12.0.1/"
+    },
+    "fontawesome": {
+      "version": "free-5.15.4",
+      "path": "src/libs/fontawesome-free-5.15.4-web/"
+    }
+  },
+  "dependencies": {
+    "electron": "^13.1.9",
+    "log4js": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/dateformat": "^3.0.1",
+    "@types/ejs": "^3.0.7",
+    "@types/fs-extra": "^9.0.12",
+    "@types/glob": "^7.1.4",
+    "@types/node": "^16.4.13",
+    "dateformat": "^4.5.1",
+    "ejs": "^3.1.6",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.1.7",
+    "sass": "^1.37.5",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  }
+}
