@@ -1,0 +1,32 @@
+{
+  "name": "fesgamelauncher",
+  "version": "1.0.0-SNAPSHOT",
+  "description": "文化祭のためのゲームランチャー",
+  "scripts": {
+    "build": "ts-node build.ts",
+    "cleanlog": "trash logs ||rm -r logs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
+  },
+  "keywords": [
+    "Electron"
+  ],
+  "author": "TwoSquirrels",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/TwoSquirrels/FesGameLauncher/issues"
+  },
+  "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
+  "devDependencies": {
+    "@types/node": "^16.4.13",
+    "@types/shelljs": "^0.8.9",
+    "log4js": "^6.3.0",
+    "sass": "^1.37.5",
+    "shelljs": "^0.8.4",
+    "trash-cli": "^4.0.0",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  }
+}
