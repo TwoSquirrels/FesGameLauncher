@@ -65,15 +65,13 @@ async function exec(
 ): Promise<void> {
 
   // start message
-  await (async () => {
-    if (messages.start !== undefined) logger.info(messages.start);
-  })();
+  if (messages.start !== undefined) logger.info(messages.start);
 
   // execute
   const result = await (async () => typeof command === "string" ? sh.exec(command, { silent: true }) : command())();
 
   // stdout & stderr
-  await (async () => {
+  {
     const std = new Map<string, string>();
     std.set("out", result.stdout);
     std.set("err", result.stderr);
@@ -82,20 +80,18 @@ async function exec(
     });
     if (std.get("out")) logger.info(std.get("out"));
     if (std.get("err")) logger.error(std.get("err"));
-  })();
+  }
 
-  await (async () => {
-    if (result.code === 0) {
-      // success message
-      if (messages.success !== undefined) logger.info(messages.success);
-    } else {
-      // failed message
-      if (messages.failed !== undefined) {
-        logger.error(messages.failed);
-        throw new Error(messages.failed);
-      } else throw new Error();
-    }
-  })();
+  if (result.code === 0) {
+    // success message
+    if (messages.success !== undefined) logger.info(messages.success);
+  } else {
+    // failed message
+    if (messages.failed !== undefined) {
+      logger.error(messages.failed);
+      throw new Error(messages.failed);
+    } else throw new Error();
+  }
 
 }
 
