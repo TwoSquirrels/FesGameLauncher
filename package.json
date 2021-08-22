@@ -3,6 +3,7 @@
   "version": "1.0.0-SNAPSHOT",
   "description": "文化祭のためのゲームランチャー",
   "scripts": {
+    "cleanlog": "ts-node build.ts cleanlog",
     "clean": "ts-node build.ts clean",
     "build": "ts-node build.ts clean build"
   },

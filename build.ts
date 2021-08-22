@@ -263,6 +263,40 @@ tasks.set("clean", (async () => {
 
 }));
 
+tasks.set("cleanlog", async () => {
+
+  const logger = log4js.getLogger("CLEANLOG");
+
+  logger.info(hr(40));
+
+  try {
+
+    logger.info('Clranin "logs" directory...');
+    try {
+      await fs.emptyDir("logs");
+    } catch (err) {
+      logger.error(err);
+      logger.error("Failed to clean directory.");
+      throw new Error();
+    }
+    logger.info("Completed cleaning directory!");
+
+    logger.info(hr(40));
+    logger.info("CLEANLOG SUCCESS");
+    logger.info(hr(40));
+
+  } catch (err) {
+
+    logger.info(hr(40));
+    logger.error("CLEANLOG FAILURE");
+    logger.info(hr(40));
+
+    throw new Error();
+
+  }
+
+});
+
 ////////////////////////////////////////////////////////////////////////////////
 // run tasks
 ////////////////////////////////////////////////////////////////////////////////
