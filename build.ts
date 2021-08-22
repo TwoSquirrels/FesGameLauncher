@@ -50,6 +50,8 @@ const config = JSON.parse(fs.readFileSync("./package.json").toString());
 // utils
 ////////////////////////////////////////////////////////////////////////////////
 
+// for tasks
+
 const hr = (repeat: number, charactor: string = "—"): string => charactor.repeat(repeat);
 
 function exec(logger: log4js.Logger, command: string): Promise<void> {
@@ -93,16 +95,19 @@ tasks.set("build", (async () => {
 
   try {
 
-    logger.info('Cleaning directories, "build/site" and "build/electron"...');
     try {
-      await fs.emptyDir("build/site");
-      await fs.emptyDir("build/electron");
+      if (await fs.pathExists("build/site")) {
+        if (!(await fs.stat("build/site")).isDirectory()) throw '"build/site" is not a directory.';
+        if ((await fs.promises.readdir("build/site")).length !== 0) throw '"build/site" is not empty';
+      }
+      if (await fs.pathExists("build/electron")) {
+        if (!(await fs.stat("build/electron")).isDirectory()) throw '"build/electron" is not a directory.';
+        if ((await fs.promises.readdir("build/electron")).length !== 0) throw '"build/electron" is not empty';
+      }
     } catch (err) {
       logger.error(err);
-      logger.error('Failed to clean directories.');
       throw new Error();
     }
-    logger.info('Completed cleaning directories!');
 
     await Promise.all([
       (async () => {
@@ -215,6 +220,41 @@ tasks.set("build", (async () => {
 
     logger.info(hr(40));
     logger.error("BUILD FAILURE");
+    logger.info(hr(40));
+
+    throw new Error();
+
+  }
+
+}));
+
+tasks.set("clean", (async () => {
+
+  const logger = log4js.getLogger("CLEAN");
+
+  logger.info(hr(40));
+
+  try {
+
+    logger.info('Cleaning directories, "build/site" and "build/electron"...');
+    try {
+      await fs.emptyDir("build/site");
+      await fs.emptyDir("build/electron");
+    } catch (err) {
+      logger.error(err);
+      logger.error('Failed to clean directories.');
+      throw new Error();
+    }
+    logger.info('Completed cleaning directories!');
+
+    logger.info(hr(40));
+    logger.info("CLEAN SUCCESS");
+    logger.info(hr(40));
+
+  } catch (err) {
+
+    logger.info(hr(40));
+    logger.error("CLEAN FAILURE");
     logger.info(hr(40));
 
     throw new Error();
