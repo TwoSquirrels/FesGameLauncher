@@ -87,7 +87,7 @@ const find = util.promisify(glob);
 
 const tasks = new Map<string, () => Promise<void>>();
 
-tasks.set("build", (async () => {
+tasks.set("build", async () => {
 
   const logger = log4js.getLogger("BUILD");
 
@@ -226,9 +226,9 @@ tasks.set("build", (async () => {
 
   }
 
-}));
+});
 
-tasks.set("clean", (async () => {
+tasks.set("clean", async () => {
 
   const logger = log4js.getLogger("CLEAN");
 
@@ -261,7 +261,7 @@ tasks.set("clean", (async () => {
 
   }
 
-}));
+});
 
 tasks.set("cleanlog", async () => {
 
