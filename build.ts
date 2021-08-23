@@ -271,7 +271,7 @@ tasks.set("cleanlog", async () => {
 
   try {
 
-    logger.info('Clranin "logs" directory...');
+    logger.info('Cleaning "logs" directory...');
     try {
       await fs.emptyDir("logs");
     } catch (err) {
