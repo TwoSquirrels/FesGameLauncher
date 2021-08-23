@@ -21,6 +21,7 @@ limitations under the License.
 %><%
   page.depth = (pathMatch => pathMatch ? pathMatch.length : 0)(page.path.match(/\//g));
   page.top = "../".repeat(page.depth);
+  page.title = `${site.name} | ${page.title}`;
 %><!DOCTYPE html>
 
 <!---
