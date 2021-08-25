@@ -5,7 +5,9 @@
   "scripts": {
     "cleanlog": "ts-node build.ts cleanlog",
     "clean": "ts-node build.ts clean",
-    "build": "ts-node build.ts clean build"
+    "build": "ts-node build.ts clean build",
+    "electron": "ts-node build.ts electron",
+    "start": "ts-node build.ts clean build electron"
   },
   "repository": {
     "type": "git",
@@ -37,19 +39,20 @@
     }
   },
   "dependencies": {
+    "@types/dateformat": "^3.0.1",
+    "@types/electron": "^1.6.10",
+    "@types/fs-extra": "^9.0.12",
+    "@types/glob": "^7.1.4",
+    "dateformat": "^4.5.1",
     "electron": "^13.1.9",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.1.7",
     "log4js": "^6.3.0"
   },
   "devDependencies": {
-    "@types/dateformat": "^3.0.1",
     "@types/ejs": "^3.0.7",
-    "@types/fs-extra": "^9.0.12",
-    "@types/glob": "^7.1.4",
     "@types/node": "^16.4.13",
-    "dateformat": "^4.5.1",
     "ejs": "^3.1.6",
-    "fs-extra": "^10.0.0",
-    "glob": "^7.1.7",
     "sass": "^1.37.5",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"

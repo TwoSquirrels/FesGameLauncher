@@ -36,7 +36,7 @@ import dateFormat from "dateformat";
 import ejs from "ejs";
 import fs from "fs-extra";
 import glob from "glob";
-import log4js from "log4js";
+import log4js, { Logger } from "log4js";
 import path from "path";
 import util from "util";
 
@@ -118,13 +118,13 @@ tasks.set("build", async () => {
 
         logger.info("Compiling TypeScript...");
         try {
-          const options: string = '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --resolveJsonModule';
+          const options: string = '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --allowSyntheticDefaultImports';
           await Promise.all(
             // site
             (await find("src/site/**/*.{ts,js}")).map(tsFile => (async () => {
               await exec(
                 logger,
-                `npx tsc --outFile "./build/site/resources/${config.version}/${tsFile.replace(/src\/site/, "").replace(/ts$/g, "js")}" "./${tsFile}" ${options}`
+                `npx tsc ${options} --outDir "./build/site/resources/${config.version}/${path.dirname(tsFile.replace(/src\/site/, ""))}" "./${tsFile}" --module "umd"`
               );
               logger.debug(`Compiled "${tsFile}".`);
             })()).concat(
@@ -132,7 +132,7 @@ tasks.set("build", async () => {
               (await find("src/electron/**/*.{ts,js}")).map(tsFile => (async () => {
                 await exec(
                   logger,
-                  `npx tsc --outFile "./build/electron/${tsFile.replace(/src\/electron/, "").replace(/ts$/, "js")}" "./${tsFile}" ${options}`
+                  `npx tsc ${options} --outDir "./build/electron/${path.dirname(tsFile.replace(/src\/electron/, ""))}" "./${tsFile}" --module "commonjs"`
                 );
                 logger.debug(`Compiled "${tsFile}".`);
               })())
@@ -289,6 +289,40 @@ tasks.set("cleanlog", async () => {
 
     logger.info(hr(40));
     logger.error("CLEANLOG FAILURE");
+    logger.info(hr(40));
+
+    throw new Error();
+
+  }
+
+});
+
+tasks.set("electron", async () => {
+
+  const logger = log4js.getLogger("ELECTRON");
+
+  logger.info(hr(40));
+
+  try {
+
+    logger.info("Starting Electron...");
+    try {
+      await exec(logger, "npx electron build/electron/main.js");
+    } catch (err) {
+      logger.error(err);
+      logger.error("Electron terminated abnormally");
+      throw new Error();
+    }
+    logger.info("Finished Electron");
+
+    logger.info(hr(40));
+    logger.info("ELECTRON SUCCESS");
+    logger.info(hr(40));
+
+  } catch (err) {
+
+    logger.info(hr(40));
+    logger.error("ELECTRON FAILURE");
     logger.info(hr(40));
 
     throw new Error();
