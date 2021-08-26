@@ -52,7 +52,7 @@ const config = JSON.parse(fs.readFileSync("./package.json").toString());
 
 // for tasks
 
-const hr = (repeat: number, charactor: string = "—"): string => charactor.repeat(repeat);
+const hr = (repeat: number, character: string = "—"): string => character.repeat(repeat);
 
 function exec(logger: log4js.Logger, command: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
