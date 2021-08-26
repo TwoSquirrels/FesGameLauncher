@@ -20,13 +20,6 @@
  * limitations under the License.
  */
 
-/*
-BUILD FLOW
-- TypeScript --[TypeScriptCompile]-> JavaScript
-- SCSS --[Sass]-> CSS
-- EJS --[EJS(NodeJS)]-> HTML
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 // imports
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +37,7 @@ import util from "util";
 // constants
 ////////////////////////////////////////////////////////////////////////////////
 
-const config = JSON.parse(fs.readFileSync("./package.json").toString());
+const config = fs.readJsonSync("package.json");
 
 ////////////////////////////////////////////////////////////////////////////////
 // utils
@@ -52,8 +45,10 @@ const config = JSON.parse(fs.readFileSync("./package.json").toString());
 
 // for tasks
 
+// 罫線を返すだけ
 const hr = (repeat: number, character: string = "—"): string => character.repeat(repeat);
 
+// ロギングしながら子プロセスでコマンドを叩く
 function exec(logger: log4js.Logger, command: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     logger.debug("> " + command);
@@ -61,8 +56,10 @@ function exec(logger: log4js.Logger, command: string): Promise<void> {
       command,
       { windowsHide: true },
       (error: child.ExecException | null, stdout: string, stderr: string): void => {
+        // 出力を改行ごとに分けてロギング
         if (stdout) stdout.slice(0, -1).split("\n").forEach(out => logger.info(out));
         if (stderr) stderr.slice(0, -1).split("\n").forEach(err => logger.error(err));
+        // 結果を返す
         if (error) reject(error);
         else resolve();
       }
@@ -87,22 +84,28 @@ const find = util.promisify(glob);
 
 const tasks = new Map<string, (logger: log4js.Logger) => Promise<void>>();
 
+// 出力先が空いているかを確認してから、
+// TypeScriptとSassとEJSを並行してビルド、
+// electronからsiteを参照できるようシンボリックリンクを作成
 tasks.set("BUILD", async logger => {
 
   try {
+    // "build/site" があればそれが空のディレクトリかを確認、なければ作成
     if (await fs.pathExists("build/site")) {
       if (!(await fs.stat("build/site")).isDirectory()) throw '"build/site" is not a directory.';
       if ((await fs.promises.readdir("build/site")).length !== 0) throw '"build/site" is not empty';
-    }
+    } else await fs.mkdirp("build/site");
+    // "build/electron" があればそれが空のディレクトリかを確認、なければ作成
     if (await fs.pathExists("build/electron")) {
       if (!(await fs.stat("build/electron")).isDirectory()) throw '"build/electron" is not a directory.';
       if ((await fs.promises.readdir("build/electron")).length !== 0) throw '"build/electron" is not empty';
-    }
+    } else await fs.mkdirp("build/electron");
   } catch (err) {
     logger.error(err);
     throw new Error();
   }
 
+  // TypeScriptとSassとEJSを同時にビルド
   await Promise.all([
     (async () => {
 
@@ -113,6 +116,7 @@ tasks.set("BUILD", async logger => {
       logger.info("Compiling TypeScript...");
       try {
         const options: string = '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --allowSyntheticDefaultImports';
+        // siteディレクトリとelectronディレクトリを同時にコンパイル
         await Promise.all(
           // site
           (await find("src/site/**/*.{ts,js}")).map(tsFile => (async () => {
@@ -147,7 +151,7 @@ tasks.set("BUILD", async logger => {
 
       logger.info("Compiling Sass...");
       try {
-        await exec(logger, `npx sass --style=expanded --no-source-map src/site:build/site/resources/${config.version}`);
+        await exec(logger, `npx sass --style=expanded src/site:build/site/resources/${config.version}`);
       } catch (err) {
         logger.error("Failed to compile Sass.");
         throw new Error();
@@ -166,10 +170,14 @@ tasks.set("BUILD", async logger => {
         config.site.version = config.version;
         for (const ejsFile of await find("src/site/**/*.{ejs,html}")) {
           if (ejsFile === "src/site/template.ejs") continue;
-          const page = require("./" + ejsFile.replace(/(ejs|html)$/g, "json"));
+          // ページ設定を読み込み
+          const page = await fs.readJson(ejsFile.replace(/(ejs|html)$/g, "json"));
+          // ページのパスを取得
           page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
+          // レンダリングしたEJSをHTMLファイルに書き込み
           await fs.promises.writeFile(
             `build/site/${page.path}.html`,
+            // EJSファイルにプロパティを渡しレンダリング
             await renderEJSFile(
               "src/site/template.ejs",
               {
@@ -194,6 +202,7 @@ tasks.set("BUILD", async logger => {
     })(),
   ]);
 
+  // Symbolic Link
   logger.info("Creating a link for the site directory in the electron directory...");
   try {
     await fs.promises.symlink(path.resolve("build/site"), path.resolve("build/electron/site"), "junction");
@@ -206,12 +215,12 @@ tasks.set("BUILD", async logger => {
 
 });
 
+// 出力先(buildディレクトリ)の中身を削除
 tasks.set("CLEAN", async logger => {
 
-  logger.info('Cleaning directories, "build/site" and "build/electron"...');
+  logger.info('Cleaning "build" directory...');
   try {
-    await fs.emptyDir("build/site");
-    await fs.emptyDir("build/electron");
+    await fs.emptyDir("build");
   } catch (err) {
     logger.error(err);
     logger.error('Failed to clean directories.');
@@ -221,6 +230,7 @@ tasks.set("CLEAN", async logger => {
 
 });
 
+// ログを全て削除
 tasks.set("CLEANLOG", async logger => {
 
   logger.info('Cleaning "logs" directory...');
@@ -235,6 +245,7 @@ tasks.set("CLEANLOG", async logger => {
 
 });
 
+// Electronのデバッグ実行
 tasks.set("ELECTRON", async logger => {
 
   logger.info("Starting Electron...");
