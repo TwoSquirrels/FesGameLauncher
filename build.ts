@@ -36,7 +36,7 @@ import dateFormat from "dateformat";
 import ejs from "ejs";
 import fs from "fs-extra";
 import glob from "glob";
-import log4js, { Logger } from "log4js";
+import log4js from "log4js";
 import path from "path";
 import util from "util";
 
@@ -85,249 +85,167 @@ const find = util.promisify(glob);
 // tasks
 ////////////////////////////////////////////////////////////////////////////////
 
-const tasks = new Map<string, () => Promise<void>>();
+const tasks = new Map<string, (logger: log4js.Logger) => Promise<void>>();
 
-tasks.set("build", async () => {
-
-  const logger = log4js.getLogger("BUILD");
-
-  logger.info(hr(40));
+tasks.set("BUILD", async logger => {
 
   try {
-
-    try {
-      if (await fs.pathExists("build/site")) {
-        if (!(await fs.stat("build/site")).isDirectory()) throw '"build/site" is not a directory.';
-        if ((await fs.promises.readdir("build/site")).length !== 0) throw '"build/site" is not empty';
-      }
-      if (await fs.pathExists("build/electron")) {
-        if (!(await fs.stat("build/electron")).isDirectory()) throw '"build/electron" is not a directory.';
-        if ((await fs.promises.readdir("build/electron")).length !== 0) throw '"build/electron" is not empty';
-      }
-    } catch (err) {
-      logger.error(err);
-      throw new Error();
+    if (await fs.pathExists("build/site")) {
+      if (!(await fs.stat("build/site")).isDirectory()) throw '"build/site" is not a directory.';
+      if ((await fs.promises.readdir("build/site")).length !== 0) throw '"build/site" is not empty';
     }
+    if (await fs.pathExists("build/electron")) {
+      if (!(await fs.stat("build/electron")).isDirectory()) throw '"build/electron" is not a directory.';
+      if ((await fs.promises.readdir("build/electron")).length !== 0) throw '"build/electron" is not empty';
+    }
+  } catch (err) {
+    logger.error(err);
+    throw new Error();
+  }
 
-    await Promise.all([
-      (async () => {
+  await Promise.all([
+    (async () => {
 
-        // TypeScript
+      // TypeScript
 
-        const logger = log4js.getLogger("TYPESCRIPT");
+      const logger = log4js.getLogger("TYPESCRIPT");
 
-        logger.info("Compiling TypeScript...");
-        try {
-          const options: string = '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --allowSyntheticDefaultImports';
-          await Promise.all(
-            // site
-            (await find("src/site/**/*.{ts,js}")).map(tsFile => (async () => {
+      logger.info("Compiling TypeScript...");
+      try {
+        const options: string = '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --allowSyntheticDefaultImports';
+        await Promise.all(
+          // site
+          (await find("src/site/**/*.{ts,js}")).map(tsFile => (async () => {
+            await exec(
+              logger,
+              `npx tsc ${options} --outDir "./build/site/resources/${config.version}/${path.dirname(tsFile.replace(/src\/site/, ""))}" "./${tsFile}" --module "umd"`
+            );
+            logger.debug(`Compiled "${tsFile}".`);
+          })()).concat(
+            // electron
+            (await find("src/electron/**/*.{ts,js}")).map(tsFile => (async () => {
               await exec(
                 logger,
-                `npx tsc ${options} --outDir "./build/site/resources/${config.version}/${path.dirname(tsFile.replace(/src\/site/, ""))}" "./${tsFile}" --module "umd"`
+                `npx tsc ${options} --outDir "./build/electron/${path.dirname(tsFile.replace(/src\/electron/, ""))}" "./${tsFile}" --module "commonjs"`
               );
               logger.debug(`Compiled "${tsFile}".`);
-            })()).concat(
-              // electron
-              (await find("src/electron/**/*.{ts,js}")).map(tsFile => (async () => {
-                await exec(
-                  logger,
-                  `npx tsc ${options} --outDir "./build/electron/${path.dirname(tsFile.replace(/src\/electron/, ""))}" "./${tsFile}" --module "commonjs"`
-                );
-                logger.debug(`Compiled "${tsFile}".`);
-              })())
+            })())
+          )
+        );
+      } catch (err) {
+        logger.error("Failed to compile TypeScript.");
+        throw new Error();
+      }
+      logger.info("Completed compiling TypeScript!");
+
+    })(),
+    (async () => {
+
+      // Sass
+
+      const logger = log4js.getLogger("SASS");
+
+      logger.info("Compiling Sass...");
+      try {
+        await exec(logger, `npx sass --style=expanded --no-source-map src/site:build/site/resources/${config.version}`);
+      } catch (err) {
+        logger.error("Failed to compile Sass.");
+        throw new Error();
+      }
+      logger.info("Completed compiling Sass!");
+
+    })(),
+    (async () => {
+
+      // EJS
+
+      const logger = log4js.getLogger("EJS");
+
+      logger.info("Rendering EJS...");
+      try {
+        config.site.version = config.version;
+        for (const ejsFile of await find("src/site/**/*.{ejs,html}")) {
+          if (ejsFile === "src/site/template.ejs") continue;
+          const page = require("./" + ejsFile.replace(/(ejs|html)$/g, "json"));
+          page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
+          await fs.promises.writeFile(
+            `build/site/${page.path}.html`,
+            await renderEJSFile(
+              "src/site/template.ejs",
+              {
+                render: {
+                  body: ejsFile
+                },
+                site: config.site,
+                libs: config.libs,
+                page: page,
+              }
             )
           );
-        } catch (err) {
-          logger.error("Failed to compile TypeScript.");
-          throw new Error();
+          logger.debug(`Compiled "${ejsFile}".`);
         }
-        logger.info("Completed compiling TypeScript!");
+      } catch (err) {
+        logger.error(err);
+        logger.error("Failed to render EJS.");
+        throw new Error();
+      }
+      logger.info("Completed rendering EJS!");
 
-      })(),
-      (async () => {
+    })(),
+  ]);
 
-        // Sass
-
-        const logger = log4js.getLogger("SASS");
-
-        logger.info("Compiling Sass...");
-        try {
-          await exec(logger, `npx sass --style=expanded --no-source-map src/site:build/site/resources/${config.version}`);
-        } catch (err) {
-          logger.error("Failed to compile Sass.");
-          throw new Error();
-        }
-        logger.info("Completed compiling Sass!");
-
-      })(),
-      (async () => {
-
-        // EJS
-
-        const logger = log4js.getLogger("EJS");
-
-        logger.info("Rendering EJS...");
-        try {
-          config.site.version = config.version;
-          for (const ejsFile of await find("src/site/**/*.{ejs,html}")) {
-            if (ejsFile === "src/site/template.ejs") continue;
-            const page = require("./" + ejsFile.replace(/(ejs|html)$/g, "json"));
-            page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
-            await fs.promises.writeFile(
-              `build/site/${page.path}.html`,
-              await renderEJSFile(
-                "src/site/template.ejs",
-                {
-                  render: {
-                    body: ejsFile
-                  },
-                  site: config.site,
-                  libs: config.libs,
-                  page: page,
-                }
-              )
-            );
-            logger.debug(`Compiled "${ejsFile}".`);
-          }
-        } catch (err) {
-          logger.error(err);
-          logger.error("Failed to render EJS.");
-          throw new Error();
-        }
-        logger.info("Completed rendering EJS!");
-
-      })(),
-    ]);
-
-    logger.info("Creating a link for the site directory in the electron directory...");
-    try {
-      await fs.promises.symlink(path.resolve("build/site"), path.resolve("build/electron/site"), "junction");
-    } catch (err) {
-      logger.error(err);
-      logger.error("Failed to create a link.");
-      throw new Error();
-    }
-    logger.info("Completed creating a link!");
-
-    logger.info(hr(40));
-    logger.info("BUILD SUCCESS");
-    logger.info(hr(40));
-
-    return;
-
+  logger.info("Creating a link for the site directory in the electron directory...");
+  try {
+    await fs.promises.symlink(path.resolve("build/site"), path.resolve("build/electron/site"), "junction");
   } catch (err) {
-
-    logger.info(hr(40));
-    logger.error("BUILD FAILURE");
-    logger.info(hr(40));
-
+    logger.error(err);
+    logger.error("Failed to create a link.");
     throw new Error();
-
   }
+  logger.info("Completed creating a link!");
 
 });
 
-tasks.set("clean", async () => {
+tasks.set("CLEAN", async logger => {
 
-  const logger = log4js.getLogger("CLEAN");
-
-  logger.info(hr(40));
-
+  logger.info('Cleaning directories, "build/site" and "build/electron"...');
   try {
-
-    logger.info('Cleaning directories, "build/site" and "build/electron"...');
-    try {
-      await fs.emptyDir("build/site");
-      await fs.emptyDir("build/electron");
-    } catch (err) {
-      logger.error(err);
-      logger.error('Failed to clean directories.');
-      throw new Error();
-    }
-    logger.info('Completed cleaning directories!');
-
-    logger.info(hr(40));
-    logger.info("CLEAN SUCCESS");
-    logger.info(hr(40));
-
+    await fs.emptyDir("build/site");
+    await fs.emptyDir("build/electron");
   } catch (err) {
-
-    logger.info(hr(40));
-    logger.error("CLEAN FAILURE");
-    logger.info(hr(40));
-
+    logger.error(err);
+    logger.error('Failed to clean directories.');
     throw new Error();
-
   }
+  logger.info('Completed cleaning directories!');
 
 });
 
-tasks.set("cleanlog", async () => {
+tasks.set("CLEANLOG", async logger => {
 
-  const logger = log4js.getLogger("CLEANLOG");
-
-  logger.info(hr(40));
-
+  logger.info('Cleaning "logs" directory...');
   try {
-
-    logger.info('Cleaning "logs" directory...');
-    try {
-      await fs.emptyDir("logs");
-    } catch (err) {
-      logger.error(err);
-      logger.error("Failed to clean directory.");
-      throw new Error();
-    }
-    logger.info("Completed cleaning directory!");
-
-    logger.info(hr(40));
-    logger.info("CLEANLOG SUCCESS");
-    logger.info(hr(40));
-
+    await fs.emptyDir("logs");
   } catch (err) {
-
-    logger.info(hr(40));
-    logger.error("CLEANLOG FAILURE");
-    logger.info(hr(40));
-
+    logger.error(err);
+    logger.error("Failed to clean directory.");
     throw new Error();
-
   }
+  logger.info("Completed cleaning directory!");
 
 });
 
-tasks.set("electron", async () => {
+tasks.set("ELECTRON", async logger => {
 
-  const logger = log4js.getLogger("ELECTRON");
-
-  logger.info(hr(40));
-
+  logger.info("Starting Electron...");
   try {
-
-    logger.info("Starting Electron...");
-    try {
-      await exec(logger, "npx electron build/electron/main.js");
-    } catch (err) {
-      logger.error(err);
-      logger.error("Electron terminated abnormally");
-      throw new Error();
-    }
-    logger.info("Finished Electron");
-
-    logger.info(hr(40));
-    logger.info("ELECTRON SUCCESS");
-    logger.info(hr(40));
-
+    await exec(logger, "npx electron build/electron/main.js");
   } catch (err) {
-
-    logger.info(hr(40));
-    logger.error("ELECTRON FAILURE");
-    logger.info(hr(40));
-
+    logger.error(err);
+    logger.error("Electron terminated abnormally");
     throw new Error();
-
   }
+  logger.info("Finished Electron");
 
 });
 
@@ -353,7 +271,7 @@ if (process.argv.length <= 2) {
 
       // A task
 
-      const taskName = process.argv[iThTask];
+      const taskName = process.argv[iThTask].toUpperCase();
 
       console.log("");
       console.log(`Task: [${taskName}]`);
@@ -368,7 +286,7 @@ if (process.argv.length <= 2) {
       } else {
 
         // set log config
-        await fs.mkdirs("logs/");
+        await fs.mkdirp("logs/");
         log4js.configure({
           appenders: {
             console: {
@@ -393,7 +311,20 @@ if (process.argv.length <= 2) {
         });
 
         // run a task
-        await task();
+        const logger = log4js.getLogger(taskName);
+        logger.info(hr(40));
+        try {
+          await task(logger);
+          logger.info(hr(40));
+          logger.info(`${taskName} SUCCESS`);
+          logger.info(hr(40));
+        } catch (err) {
+          logger.info(hr(40));
+          logger.error(`${taskName} FAILURE`);
+          logger.info(hr(40));
+          throw new Error();
+        }
+
 
       }
 
