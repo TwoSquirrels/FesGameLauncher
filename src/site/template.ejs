@@ -1,0 +1,86 @@
+<%#
+ProjectName: fesgamelauncher
+FileName: template.ejs
+Encoding: UTF-8
+Author: TwoSquirrels
+CreationDate: Aug 20, 2021
+--------------------------------------------------------------------------------
+Copyright 2021 APC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+%><%
+  page.depth = (pathMatch => pathMatch ? pathMatch.length : 0)(page.path.match(/\//g));
+  page.top = "../".repeat(page.depth);
+  page.title = `${site.name} | ${page.title}`;
+%><!DOCTYPE html>
+
+<!---
+<%= `${site.name} v${site.version}` %>
+<%= site.message %>
+--->
+
+<html lang="ja">
+
+  <head prefix="og: http://ogp.me/ns#">
+
+    <!-- meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="ja" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="<%= page.keywords.join() %>" />
+    <meta name="description" content="<%= page.description %>" />
+    <meta name="author" content="<%= page.author %>" />
+    <meta name="theme-color" content="#<%= page.color %>" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="#<%= page.color %>" />
+
+    <!-- ogp -->
+    <meta property="og:url" content="<%= site.url %><%= page.path === "index" ? "" : page.path  %>" />
+    <meta property="og:type" content="<%= page.type %>" />
+    <meta property="og:title" content="<%= page.title %>" />
+    <meta property="og:description" content="<%= page.description %>" />
+    <meta property="og:site_name" content="<%= site.name %>" />
+    <meta property="og:image" content="<%= site.url %>resources/<%= site.version %>/images/thumbnails/<%= page.path %>.png" />
+    <!-- twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@<%= page.twitter %>" />
+
+    <!-- main head -->
+    <title><%= page.title %></title>
+    <link id="favicon" rel="icon" href="<%= page.top %>resources/<%= site.version %>/images/favicon.ico" type="image/x-icon" />
+
+    <!-- constants -->
+    <script>
+      const constants = JSON.parse(`<%- JSON.stringify({ site, libs, page }) %>`);
+    </script>
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="<%= page.top %>resources/libs/sanitize.css-<%= libs.sanitize_css.version %>/all.min.css" />
+    <link rel="stylesheet" href="<%= page.top %>resources/libs/fontawesome-free-1<%= libs.fontawesome.version %>/css/all.min.css" />
+    <link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/style.css" />
+    <link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.css" />
+
+    <!-- javascript -->
+    <script src="<%= page.top %>resources/<%= site.version %>/script.js" charset="utf-8" defer></script>
+    <script src="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.js" charset="utf-8" defer></script>
+
+  </head>
+
+  <body>
+
+<%- include("../../" + render.body, { render, site, libs, page }) %>
+  </body>
+
+</html>
