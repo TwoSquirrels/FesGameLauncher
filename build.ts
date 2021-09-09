@@ -27,9 +27,12 @@
 import child from "child_process";
 import dateFormat from "dateformat";
 import ejs from "ejs";
+import express from "express";
 import fs from "fs-extra";
 import glob from "glob";
+import http from "http";
 import log4js from "log4js";
+import opener from "opener";
 import path from "path";
 import util from "util";
 
@@ -67,6 +70,15 @@ function exec(logger: log4js.Logger, command: string): Promise<void> {
   })
 };
 
+// press any key to continue
+function waitkey(): Promise<void> {
+  process.stdin.setRawMode(true);
+  return new Promise<void>(resolve => process.stdin.once("data", () => {
+    process.stdin.setRawMode(false);
+    resolve();
+  }));
+}
+
 // promisify
 function renderEJSFile(path: string, data: ejs.Data): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -77,6 +89,11 @@ function renderEJSFile(path: string, data: ejs.Data): Promise<string> {
   });
 }
 const find = util.promisify(glob);
+const startServer = (app: express.Express, port: number): Promise<http.Server> =>
+  new Promise(resolve => {
+    let server: http.Server | undefined;
+    server = app.listen(port, () => resolve(server!));
+  });
 
 ////////////////////////////////////////////////////////////////////////////////
 // tasks
@@ -253,10 +270,45 @@ tasks.set("ELECTRON", async logger => {
     await exec(logger, "npx electron build/electron/main.js");
   } catch (err) {
     logger.error(err);
-    logger.error("Electron terminated abnormally");
+    logger.error("Electron terminated abnormally.");
     throw new Error();
   }
-  logger.info("Finished Electron");
+  logger.info("Finished Electron!");
+
+});
+
+// サーバーを立ててブラウザを起動する
+tasks.set("SERVER", async logger => {
+
+  logger.info("Launching a server...");
+  const app = express();
+  let server: http.Server | undefined;
+  try {
+    const root = path.resolve("build/site"); 
+    app.use(express.static(root));
+    app.use((req, res) => res.status(404).sendFile("404.html", { root }));
+    server = await startServer(app, 8080);
+  } catch(err) {
+    logger.error(err);
+    logger.error("Failed to launch the server.");
+    throw new Error();
+  }
+  logger.info("Succeeded in launching the server!");
+  (() => {
+    const logger = log4js.getLogger("OPEN");
+    logger.info("Opening http://localhost:8080/ ...");
+    try {
+      opener("http://localhost:8080/");
+    } catch (err) {
+      logger.error(err);
+      logger.error("Failed to open the site.");
+      return;
+    }
+    logger.info("Succeeded in opening the site!");
+  })();
+  console.log("Press any key to stop the server...");
+  await waitkey();
+  server!.close();
 
 });
 
