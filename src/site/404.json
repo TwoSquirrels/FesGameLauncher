@@ -12,5 +12,9 @@
   "color": "FFFFFF",
   "type": "website",
   "title": "404 Not Found",
-  "twitter": "Uchi54_APC"
+  "twitter": "Uchi54_APC",
+  "libs": {
+    "css": [],
+    "js": []
+  }
 }

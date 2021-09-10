@@ -63,24 +63,30 @@ limitations under the License.
 
     <!-- constants -->
     <script>
-      const constants = JSON.parse(`<%- JSON.stringify({ site, libs, page }) %>`);
+      const constants = JSON.parse(`<%- JSON.stringify({ site, page }) %>`);
     </script>
 
-    <!-- stylesheets -->
-    <link rel="stylesheet" href="<%= page.top %>resources/libs/sanitize.css-<%= libs.sanitize_css.version %>/all.min.css" />
-    <link rel="stylesheet" href="<%= page.top %>resources/libs/fontawesome-free-1<%= libs.fontawesome.version %>/css/all.min.css" />
-    <link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/style.css" />
-    <link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.css" />
+    <!-- stylesheet -->
+    <!-- site common -->
+    <% site.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= page.top %>resources/libs/<%= lib %>" />
+    <% }); %><link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/style.css" />
+    <!-- page specific -->
+    <% page.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= page.top %>resources/libs/<%= lib %>" />
+    <% }); %><link rel="stylesheet" href="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.css" />
 
     <!-- javascript -->
-    <script src="<%= page.top %>resources/<%= site.version %>/script.js" charset="utf-8" defer></script>
-    <script src="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.js" charset="utf-8" defer></script>
+    <!-- site common -->
+    <% site.libs.js.forEach(lib => { %><script src="<%= page.top %>resources/libs/<%= lib %>" defer></script>
+    <% }); %><script src="<%= page.top %>resources/<%= site.version %>/script.js" charset="utf-8" defer></script>
+    <!-- page specific -->
+    <% page.libs.js.forEach(lib => { %><script src="<%= page.top %>resources/libs/<%= lib %>" defer></script>
+    <% }); %><script src="<%= page.top %>resources/<%= site.version %>/<%= page.path %>.js" charset="utf-8" defer></script>
 
   </head>
 
   <body>
 
-<%- include("../../" + render.body, { render, site, libs, page }) %>
+<%- include("../../" + render.body, { render, site, page }) %>
   </body>
 
 </html>

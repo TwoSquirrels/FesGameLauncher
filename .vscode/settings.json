@@ -1,8 +1,13 @@
 {
     "commentTranslate.targetLanguage": "ja",
     "cSpell.words": [
+        "appender",
+        "appenders",
         "cleanlog",
         "fesgamelauncher",
-        "sourcemapped"
+        "fontawesome",
+        "sourcemapped",
+        "waitkey",
+        "webfonts"
     ]
 }
