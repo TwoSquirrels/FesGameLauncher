@@ -86,6 +86,10 @@ Answer 2
   
 ## Tech Stack
 
+**Build:** TypeScript and Log4js
+
+**GUI:** EJS, Sass, TypeScript and Font Awesome
+
 **PC Client:** Electron
 
 **Web Client:** GitHub Pages
