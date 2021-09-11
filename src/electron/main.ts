@@ -50,15 +50,15 @@ import * as path from "path";
 function createWindow() {
   // Create the browser window.
   const mainWindow = new electron.BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 768,
     autoHideMenuBar: true,
     //kiosk: true,
     //fullscreen: true,
     //frame: false,
-    //webPreferences: {
-    //  preload: path.join(__dirname, "electron.js")
-    //},
+    webPreferences: {
+      preload: path.join(__dirname, "electron.js")
+    },
   });
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "site", "launcher.html"));

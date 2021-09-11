@@ -1,18 +1,109 @@
-$theme-color: #FFFF80;
+/*!
+ * ProjectName: fesgamelauncher
+ * FileName: launcher.scss
+ * Encoding: UTF-8
+ * Author: TwoSquirrels
+ * CreationDate: Sep 11, 2021
+ * --------------------------------------------------------------------------------
+ * Copyright 2021 APC
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+$theme-color: #FFFFFF;
 
 body {
-  position: fixed;
-  background-color: $theme-color;
-}
 
-main {
-  position: relative;
-  height: 100vh;
-  margin: auto;
-  aspect-ratio: 4 / 3;
-  background-color: white;
-  @media (max-aspect-ratio: 4 / 3) {
-    width: 100vw;
-    height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: var(--width);
+  height: var(--height);
+
+  background-color: $theme-color;
+
+  main {
+
+    display: flex;
+    flex-direction: column;
+
+    width: calc(var(--height) * 4 / 3);
+    max-width: var(--width);
+    height: var(--height);
+    padding: 1rem;
+
+    text-align: center;
+
+    > h2 span {
+
+      display: inline-block;
+      white-space: nowrap;
+
+    }
+
+    > .box {
+
+      display: flex;
+      flex-direction: column;
+
+      flex: 1;
+      margin: 1rem;
+
+      background-color: skyblue;
+
+      > .tabs {
+
+        display: flex;
+        flex-direction: row;
+
+        flex: 0 0 32px;
+        margin: 0;
+        padding: 0;
+
+        list-style-type: none;
+        background-color: red;
+
+        > li {
+
+          width: calc(100% / 3);
+
+        }
+
+      }
+
+      > .items {
+
+        flex: 1;
+        margin: 0;
+        padding: 0;
+
+        list-style-type: none;
+        background-color: green;
+
+      }
+
+      > .preview {
+
+        flex: 1;
+        margin: 0;
+
+        background-color: blue;
+
+      }
+
+    }
+
   }
+
 }

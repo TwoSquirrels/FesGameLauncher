@@ -1,5 +1,13 @@
 <main>
-  <div class=".container">
-    <h2>選択ページだよん</h2>
+  <%= site.name %>
+  <h2><span>遊びたいゲーム等を</span><span>選択してください</span></h2>
+  <div class="box">
+    <ul class="tabs">
+      <li onclick="switchTab('games')">ゲーム</li>
+      <li onclick="switchTab('movies')">動画</li>
+      <li onclick="switchTab('others')">その他</li>
+    </ul>
+    <ul class="items"></ul>
+    <div class="preview"></div>
   </div>
 </main>
