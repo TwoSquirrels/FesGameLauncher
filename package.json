@@ -30,10 +30,11 @@
     "url": "https://asanobuturi.github.com/FesGameLauncher/",
     "libs": {
       "css": [
-        "sanitize.css-12.0.1/all.min.css",
-        "fontawesome-free-5.15.4-web/css/all.min.css"
+        "sanitize.css-12.0.1/all.min.css"
       ],
-      "js": []
+      "js": [
+        "fontawesome-free-5.15.4-web/js/all.min.js"
+      ]
     }
   },
   "libs": [
@@ -57,8 +58,7 @@
       "name": "fontawesome-free-5.15.4-web",
       "requires": [
         "LICENSE.txt",
-        "css/all.min.css",
-        "webfonts/*"
+        "js/all.min.js"
       ]
     }
   ],
