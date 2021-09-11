@@ -86,6 +86,10 @@ Answer 2
   
 ## Tech Stack
 
+**Build:** TypeScript and Log4js
+
+**GUI:** EJS, Sass, TypeScript and Font Awesome
+
 **PC Client:** Electron
 
 **Web Client:** GitHub Pages
@@ -109,13 +113,17 @@ Answer 2
 
 1. Supportの連絡先にその旨を連絡し許可を得る。
 2. このプロジェクトをフォークする。
-3. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
-4. そのブランチでその機能を作る。
-5. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
-6. 新機能が完成しこのプロジェクトに反映させたい場合は、このプロジェクトの進捗を上の方法で取り込む。
-7. 自分のブランチからこのプロジェクトの`develop`ブランチへのプルリクエストを送る。
-8. レビューを受ける。
-9. 修正依頼があれば修正する。
-10. 問題がなければ無事、このプロジェクトにマージコミットが作られ反映されます！
+3. `npm i`を叩きnpmモジュールをインストールする。
+4. `libs`ディレクトリを作る。
+5. [Font Awesome (Free for Web v5.15.4)](https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-web.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
+6. [sanitize.css](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
+7. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
+8. そのブランチでその機能を作る。
+9. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
+10. 新機能が完成しこのプロジェクトに反映させたい場合は、このプロジェクトの進捗を上の方法で取り込む。
+11. 自分のブランチからこのプロジェクトの`develop`ブランチへのプルリクエストを送る。
+12. レビューを受ける。
+13. 修正依頼があれば修正する。
+14. 問題がなければ無事、このプロジェクトにマージコミットが作られ反映されます！
 
   
