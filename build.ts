@@ -410,6 +410,7 @@ tasks.set("SERVER", async logger => {
   console.log("Press any key to stop the server...");
   await waitkey();
   server!.close();
+  logger.info("Stopped the server!");
 
 });
 
