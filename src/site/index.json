@@ -1,5 +1,4 @@
 {
-  "path": "",
   "keywords": [
     "APC",
     "浅野",
@@ -13,5 +12,9 @@
   "color": "FFFFFF",
   "type": "website",
   "title": "トップ",
-  "twitter": "Uchi54_APC"
+  "twitter": "Uchi54_APC",
+  "libs": {
+    "css": [],
+    "js": []
+  }
 }
