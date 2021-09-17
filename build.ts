@@ -258,10 +258,12 @@ tasks.set("BUILD", async logger => {
       const logger = log4js.getLogger("EJS");
 
       logger.info("Rendering EJS...");
+      let nowFile: string | undefined;
       try {
         config.site.version = config.version;
         for (const ejsFile of await find("src/site/**/*.{ejs,html}")) {
           if (ejsFile === "src/site/template.ejs") continue;
+          nowFile = ejsFile;
           // ページ設定を読み込み
           const page = await fs.readJson(ejsFile.replace(/(ejs|html)$/g, "json"));
           // ページのパスを取得

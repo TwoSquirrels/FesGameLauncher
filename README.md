@@ -67,6 +67,8 @@ Answer 2
 ### Program
 
 - [日頃お世話になっているElectronのアプリ開発に入門してみる - Qiita](https://qiita.com/y-tsutsu/items/179717ecbdcc27509e5a)
+- [ElectronでcontextBridgeによる安全なIPC通信 - Qiita](https://qiita.com/pochman/items/64b34e9827866664d436)
+- [アドレスバーのURLを書き換える - Qiita](https://qiita.com/nightyknite/items/b350dc95f7da089a516a)
 
   
 ### GUI
