@@ -21,6 +21,10 @@
  */
 
 $theme-color: #FFFFFF;
+$box-color: khaki;
+$games-color: lightgreen;
+$movies-color: aquamarine;
+$others-color: plum;
 
 body {
 
@@ -54,13 +58,15 @@ body {
 
     > .box {
 
+      position: relative;
       display: flex;
       flex-direction: column;
 
       flex: 1;
-      margin: 1rem;
+      margin: min(1rem, 2%);
 
-      background-color: skyblue;
+      overflow: hidden;
+      background-color: $box-color;
 
       > .tabs {
 
@@ -71,12 +77,31 @@ body {
         margin: 0;
         padding: 0;
 
+        overflow-x: auto;
         list-style-type: none;
-        background-color: red;
 
         > li {
 
-          width: calc(100% / 3);
+          flex: 1;
+          min-width: 4em;
+
+          &.games {
+            background-color: $games-color;
+          }
+          &.movies {
+            background-color: $movies-color;
+          }
+          &.others {
+            background-color: $others-color;
+          }
+
+          > button {
+
+            width: 100%;
+            height: 100%;
+            padding: 0;
+
+          }
 
         }
 
@@ -86,19 +111,188 @@ body {
 
         flex: 1;
         margin: 0;
-        padding: 0;
+        padding: min(1rem, 2%);
 
+        overflow: auto;
         list-style-type: none;
-        background-color: green;
+        &.games {
+          background-color: $games-color;
+        }
+        &.movies {
+          background-color: $movies-color;
+        }
+        &.others {
+          background-color: $others-color;
+        }
+
+        > li > button {
+
+          display: grid;
+          grid-template-rows: 50% 50%;
+          grid-template-columns: 3em 1fr 6.5em;
+          @media screen and (max-width: 32em) {
+            grid-template-columns: 3em 1fr 3em;
+          }
+          grid-template-areas:
+            "icon title  version"
+            "icon author added  ";
+          &.is-game {
+            grid-template-columns: 3em 1fr 7em 6.5em;
+            @media screen and (max-width: 32em) {
+              grid-template-columns: 3em 1fr 2.5em 3em;
+            }
+            grid-template-areas:
+              "icon title  difficulty version"
+              "icon author difficulty added  ";
+          }
+
+          width: 100%;
+          height: 3em;
+          padding: 0;
+
+          text-align: left;
+          overflow: hidden;
+
+          > * {
+
+            display: flex;
+            align-items: center;
+
+            overflow: hidden;
+
+            > .ellipsis {
+
+              width: 100%;
+              height: 100%;
+
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+
+            }
+
+          }
+
+          @media screen and (max-width: 32em) {
+            .wide-only {
+              display: none;
+            }
+          }
+
+          > .icon {
+
+            justify-content: center;
+
+            grid-area: icon;
+            width: 100%;
+            height: 100%;
+            padding: 0.5em;
+
+          }
+
+          > .title {
+
+            grid-area: title;
+
+          }
+
+          > .author {
+
+            grid-area: author;
+
+            color: dimgray;
+
+          }
+
+          > .difficulty {
+
+            grid-area: difficulty;
+
+            height: 100%;
+
+            > span {
+
+              filter: drop-shadow(0 0 .125em white);
+              &.easy {
+                color: dodgerblue;
+              }
+              &.normal {
+                color: darkorange;
+              }
+              &.hard {
+                color: orangered;
+              }
+
+            }
+
+          }
+
+          > .version {
+
+            grid-area: version;
+
+            color: dimgray;
+
+          }
+
+          > .added {
+
+            grid-area: added;
+
+          }
+
+        }
 
       }
 
       > .preview {
 
+        position: relative;
+
         flex: 1;
         margin: 0;
 
-        background-color: blue;
+        overflow: hidden;
+
+        > .unselected {
+
+          position: absolute;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          width: 100%;
+          height: 100%;
+
+          > p {
+
+            font-size: 2em;
+
+          }
+
+        }
+
+      }
+
+      > .loading {
+
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+        color: white;
+        background-color: rgba(64, 64, 64, .75);
+
+        > p {
+
+          font-size: 2em;
+
+        }
 
       }
 

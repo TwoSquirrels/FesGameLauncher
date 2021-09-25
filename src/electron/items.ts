@@ -1,6 +1,6 @@
 /*!
  * ProjectName: fesgamelauncher
- * FileName: contents.ts
+ * FileName: items.ts
  * Encoding: UTF-8
  * Author: TwoSquirrels
  * CreationDate: Sep 25, 2021
@@ -27,7 +27,7 @@ import * as electron from "electron";
 /* module */
 
 export function register() {
-  electron.ipcMain.handle("contents.get", async (event, category: string) => {
+  electron.ipcMain.handle("items.get", async (event, category: string) => {
     return {
       games: [
         {
@@ -46,8 +46,6 @@ export function register() {
             offline: true,
             difficulty: 1,
           },
-          icon: "data/stable/img/player/right.png",
-          detail: "detail.png",
         },
         {
           id: "TheActionOfLookSerious",
@@ -66,8 +64,6 @@ export function register() {
             offline: true,
             difficulty: 2,
           },
-          icon: "icon.png",
-          detail: "screenshot.png",
         },
       ],
       movies: [
@@ -82,8 +78,6 @@ export function register() {
           movie: {
             file: "CoolestOfWorld.mp4",
           },
-          icon: "icon.png",
-          detail: "preview.mp4",
         },
       ],
       others: [],
@@ -91,7 +85,7 @@ export function register() {
   });
 
   electron.ipcMain.handle(
-    "contents.launch",
+    "items.launch",
     (event, id: string, platform: string, args: string[]) => {
       // launch program
     }

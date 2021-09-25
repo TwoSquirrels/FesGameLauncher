@@ -31,11 +31,15 @@ import * as electron from "electron";
 ////////////////////////////////////////////////////////////////////////////////
 
 electron.contextBridge.exposeInMainWorld("electron", {
-  contents: {
-    getGames: () => electron.ipcRenderer.invoke("contents.get", "games"),
-    getMovies: () => electron.ipcRenderer.invoke("contents.get", "movies"),
-    getOthers: () => electron.ipcRenderer.invoke("contents.get", "others"),
-    launch: (id: string, platform: string, args?: string[]) =>
-      electron.ipcRenderer.invoke("contents.launch", id, platform, args ?? []),
+  config: electron.ipcRenderer.invoke("config"),
+  items: {
+    get: async (category: string) => {
+      const items: any[] = await electron.ipcRenderer.invoke("items.get", category);
+      items.forEach((item) => item.category = category);
+      return items;
+    },
+    launch: (id: string, platform: string, args?: string[]) => {
+      electron.ipcRenderer.invoke("items.launch", id, platform, args ?? []);
+    },
   },
 });

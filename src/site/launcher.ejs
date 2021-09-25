@@ -1,13 +1,32 @@
 <main>
-  <%= site.name %>
+  <span>
+    <%= site.name %>
+  </span>
   <h2><span>遊びたいゲーム等を</span><span>選択してください</span></h2>
   <div class="box">
     <ul class="tabs">
-      <li onclick="switchTab('games')">ゲーム</li>
-      <li onclick="switchTab('movies')">動画</li>
-      <li onclick="switchTab('others')">その他</li>
+      <li class="games"><button onclick="switchTab('games')">
+          <i class="fas fa-gamepad"></i>&thinsp;ゲーム
+        </button></li>
+      <li class="movies erase"><button onclick="switchTab('movies')">
+          <i class="fas fa-film"></i>&thinsp;動画
+        </button></li>
+      <li class="others erase"><button onclick="switchTab('others')">
+          <i class="fas fa-splotch"></i>&thinsp;その他
+        </button></li>
     </ul>
     <ul class="items"></ul>
-    <div class="preview"></div>
+    <div class="preview">
+      <div class="item hide"></div>
+      <div class="unselected">
+        <p>上のリストから気になるものをクリック/タッチしてね</p>
+      </div>
+    </div>
+    <div class="loading hide">
+      <p>
+        <i class="fas fa-spinner fa-2x fa-spin"></i><br />
+        Now Loading...
+      </p>
+    </div>
   </div>
 </main>
