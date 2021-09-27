@@ -6,8 +6,11 @@
         "cleanlog",
         "fesgamelauncher",
         "fontawesome",
+        "linuxarm",
         "sourcemapped",
+        "thinsp",
         "waitkey",
-        "webfonts"
+        "webfonts",
+        "winarm"
     ]
 }

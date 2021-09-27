@@ -258,10 +258,12 @@ tasks.set("BUILD", async logger => {
       const logger = log4js.getLogger("EJS");
 
       logger.info("Rendering EJS...");
+      let nowFile: string | undefined;
       try {
         config.site.version = config.version;
         for (const ejsFile of await find("src/site/**/*.{ejs,html}")) {
           if (ejsFile === "src/site/template.ejs") continue;
+          nowFile = ejsFile;
           // ページ設定を読み込み
           const page = await fs.readJson(ejsFile.replace(/(ejs|html)$/g, "json"));
           // ページのパスを取得
@@ -278,13 +280,14 @@ tasks.set("BUILD", async logger => {
                 },
                 site: config.site,
                 libs: config.libs,
-                page: page,
+                page,
               }
             )
           );
           logger.debug(`Compiled "${ejsFile}".`);
         }
       } catch (err) {
+        logger.error(`Rendering error in "${nowFile}".`);
         logger.error(err);
         logger.error("Failed to render EJS.");
         throw new Error();
@@ -383,7 +386,7 @@ tasks.set("SERVER", async logger => {
   let server: http.Server | undefined;
   try {
     const root = path.resolve("build/site");
-    app.use(express.static(root));
+    app.use(express.static(root, { extensions: ["html", "htm"] }));
     app.use((req, res) => res.status(404).sendFile("404.html", { root }));
     server = await startServer(app, 8080);
   } catch (err) {

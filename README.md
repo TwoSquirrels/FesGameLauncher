@@ -67,6 +67,8 @@ Answer 2
 ### Program
 
 - [日頃お世話になっているElectronのアプリ開発に入門してみる - Qiita](https://qiita.com/y-tsutsu/items/179717ecbdcc27509e5a)
+- [ElectronでcontextBridgeによる安全なIPC通信 - Qiita](https://qiita.com/pochman/items/64b34e9827866664d436)
+- [アドレスバーのURLを書き換える - Qiita](https://qiita.com/nightyknite/items/b350dc95f7da089a516a)
 
   
 ### GUI
@@ -116,7 +118,7 @@ Answer 2
 3. `npm i`を叩きnpmモジュールをインストールする。
 4. `libs`ディレクトリを作る。
 5. [Font Awesome (Free for Web v5.15.4)](https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-web.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
-6. [sanitize.css](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
+6. [sanitize.css (v12.0.1)](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
 7. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
 8. そのブランチでその機能を作る。
 9. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
