@@ -137,7 +137,7 @@ body {
             "icon title  version"
             "icon author added  ";
           &.is-game {
-            grid-template-columns: 3em 1fr 7em 6.5em;
+            grid-template-columns: 3em 1fr 8em 6.5em;
             @media screen and (max-width: 32em) {
               grid-template-columns: 3em 1fr 2.5em 3em;
             }
