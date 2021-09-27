@@ -118,7 +118,7 @@ Answer 2
 3. `npm i`を叩きnpmモジュールをインストールする。
 4. `libs`ディレクトリを作る。
 5. [Font Awesome (Free for Web v5.15.4)](https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-web.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
-6. [sanitize.css](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
+6. [sanitize.css (v12.0.1)](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
 7. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
 8. そのブランチでその機能を作る。
 9. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
