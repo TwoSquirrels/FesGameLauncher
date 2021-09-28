@@ -541,6 +541,20 @@ if (process.argv.length <= 2) {
   console.log(` START BUILD TASKS (for ${config.name}@${config.version})`);
   console.log(hr(80, "="));
 
+  // load tasks
+  (await find("tasks/*", { nodir: true })).forEach((taskScript: string) => {
+    try {
+      const task = require(`./${taskScript}`);
+      if (typeof task !== "function") throw new Error(`This module is not a function.\nIt's a ${typeof task}.`);
+      if (task.constructor.name !== "AsyncFunction") throw new Error(`This module is not a async function.\nIt's a ${typeof task}.`);
+      tasks.set(path.parse(taskScript).name.toUpperCase(), task);
+    } catch (err) {
+      console.log("");
+      console.error(`Failed to load "${taskScript}".`);
+      console.error(err);
+    }
+  });
+
   try {
     for (let iThTask = 2; iThTask < process.argv.length; ++iThTask) {
       // A task

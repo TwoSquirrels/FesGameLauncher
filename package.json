@@ -26,8 +26,8 @@
   "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
   "site": {
     "name": "浅野物理部の自作ゲーム置き場",
-    "message": "何見てんねん",
-    "url": "https://asanobuturi.github.com/FesGameLauncher/",
+    "message": "プロジェクトのリポジトリ -> https://github.com/asanobuturi/FesGameLauncher\nサイトの中身 -> https://github.com/asanobuturi/FesGameLauncher/tree/gh-pages",
+    "url": "http://localhost:8080/",
     "libs": {
       "css": [
         "sanitize.css-12.0.1/all.min.css"

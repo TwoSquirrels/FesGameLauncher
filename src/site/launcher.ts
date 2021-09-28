@@ -33,6 +33,7 @@ type Item = {
   description?: string;
   author?: string;
   added: number;
+  prenotice?: boolean;
   category: "games" | "movies" | "others";
 };
 type Game = Item & {
@@ -207,7 +208,7 @@ const updateItems: () => Promise<void> = (() => {
           try {
             const icon = document.createElement("img");
             icon.src = await resolveImage(
-              `${isElectron() ? "../" : ""}items/${tab}/${item.id}/icon.png`
+              `${extra.top()}${constants.page.top}${isElectron() ? "../" : ""}items/${tab}/${item.id}/icon.png`
             );
             icon.classList.add("icon");
             button.appendChild(icon);

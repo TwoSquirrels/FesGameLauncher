@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 %><%
   page.top = "../".repeat((page.path.match(/\//g) ?? []).length);
-  page.title = `${site.name} | ${page.title}`;
+  page.title = `${page.title} - ${site.name}`;
   const extra = {
     path: page.extra ?? "",
     top: "../".repeat(page.extra ? ((page.extra.match(/\//g) ?? []).length + 1) : 0),
@@ -48,7 +48,7 @@ limitations under the License.
     <meta name="author" content="<%= page.author %>" />
     <meta name="theme-color" content="#<%= page.color %>" />
     <meta name="apple-mobile-web-app-status-bar-style" content="#<%= page.color %>" />
-
+    <% if (render.publish) { %>
     <!-- ogp -->
     <meta property="og:url" content="<%= site.url %><%= page.path === "index" ? "" : page.path  %>" />
     <meta property="og:type" content="<%= page.type %>" />
@@ -59,14 +59,14 @@ limitations under the License.
     <!-- twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@<%= page.twitter %>" />
-
+    <% } %>
     <!-- main head -->
     <title><%= page.title %></title>
     <link id="favicon" rel="icon" href="<%= site.url %>resources/<%= site.version %>/images/favicon.ico" type="image/x-icon" />
 
     <!-- definitions -->
     <script>
-      const constants = JSON.parse(`<%- JSON.stringify({ site, page }) %>`);
+      const constants = JSON.parse(<%- JSON.stringify(JSON.stringify({ site, page })) %>);
       const extra = {
         path: "<%= extra.path %>",
         top() {
@@ -77,19 +77,19 @@ limitations under the License.
 
     <!-- stylesheet -->
     <!-- site common -->
-    <% site.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= page.top + extra.top %>resources/libs/<%= lib %>" />
-    <% }); %><link rel="stylesheet" href="<%= page.top + extra.top %>resources/<%= site.version %>/style.css" />
+    <% site.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= extra.top + page.top %>resources/libs/<%= lib %>" />
+    <% }); %><link rel="stylesheet" href="<%= extra.top + page.top %>resources/<%= site.version %>/style.css" />
     <!-- page specific -->
-    <% page.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= page.top + extra.top %>resources/libs/<%= lib %>" />
-    <% }); %><link rel="stylesheet" href="<%= page.top + extra.top %>resources/<%= site.version %>/<%= page.path %>.css" />
+    <% page.libs.css.forEach(lib => { %><link rel="stylesheet" href="<%= extra.top + page.top %>resources/libs/<%= lib %>" />
+    <% }); %><link rel="stylesheet" href="<%= extra.top + page.top %>resources/<%= site.version %>/<%= page.path %>.css" />
 
     <!-- javascript -->
     <!-- site common -->
-    <% site.libs.js.forEach(lib => { %><script src="<%= page.top + extra.top %>resources/libs/<%= lib %>" defer></script>
-    <% }); %><script src="<%= page.top + extra.top %>resources/<%= site.version %>/script.js" charset="utf-8" defer></script>
+    <% site.libs.js.forEach(lib => { %><script src="<%= extra.top + page.top %>resources/libs/<%= lib %>" defer></script>
+    <% }); %><script src="<%= extra.top + page.top %>resources/<%= site.version %>/script.js" charset="utf-8" defer></script>
     <!-- page specific -->
-    <% page.libs.js.forEach(lib => { %><script src="<%= page.top + extra.top %>resources/libs/<%= lib %>" defer></script>
-    <% }); %><script src="<%= page.top + extra.top %>resources/<%= site.version %>/<%= page.path %>.js" charset="utf-8" defer></script>
+    <% page.libs.js.forEach(lib => { %><script src="<%= extra.top + page.top %>resources/libs/<%= lib %>" defer></script>
+    <% }); %><script src="<%= extra.top + page.top %>resources/<%= site.version %>/<%= page.path %>.js" charset="utf-8" defer></script>
 
   </head>
 
