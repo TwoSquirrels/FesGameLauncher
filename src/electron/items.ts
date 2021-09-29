@@ -23,12 +23,20 @@
 /* imports */
 
 import * as electron from "electron";
+import * as glob from "glob";
+import * as util from "util";
+
+/* utils */
+
+const find = util.promisify(glob);
 
 /* module */
 
 export function register() {
   electron.ipcMain.handle("items.get", async (event, category: string) => {
-    return {
+    if (false) {
+      const items = new Array<any>();
+    } else return {
       games: [
         {
           id: "ArcherStory",

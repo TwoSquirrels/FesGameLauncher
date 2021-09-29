@@ -278,7 +278,7 @@ tasks.set("BUILD", async (logger) => {
                 resource,
                 resource.replace(
                   /resources\/site/,
-                  `build/site/resources/${config.version}`
+                  `build/site/resources`
                 )
               );
               logger.debug(`Copied "${resource}".`);
@@ -290,7 +290,13 @@ tasks.set("BUILD", async (logger) => {
               // コピー！
               await fs.copy(resource, resource.replace(/resources/, "build"));
               logger.debug(`Copied "${resource}".`);
-            })
+            }),
+            // both
+            (async () => {
+              // コピー！(あとでリンク張るの！)
+              await fs.copy("resources/both/", "build/both/");
+              logger.debug(`Copied "resources/both/" to "build/both/".`);
+            })()
           )
         );
       } catch (err) {
@@ -317,9 +323,7 @@ tasks.set("BUILD", async (logger) => {
             ).map(async (tsFile) => {
               await exec(
                 logger,
-                `npx tsc ${options} --outDir "./build/site/resources/${
-                  config.version
-                }/${path.dirname(
+                `npx tsc ${options} --outDir "./build/site/resources/js/${path.dirname(
                   tsFile.replace(/src\/site/, "")
                 )}" "./${tsFile}" --module "umd"`
               );
@@ -354,7 +358,7 @@ tasks.set("BUILD", async (logger) => {
       try {
         await exec(
           logger,
-          `npx sass --style=expanded src/site:build/site/resources/${config.version}`
+          `npx sass --style=expanded src/site:build/site/resources/css`
         );
       } catch (err) {
         logger.error("Failed to compile Sass.");
@@ -428,6 +432,22 @@ tasks.set("BUILD", async (logger) => {
       logger.info("Completed creating a site link!");
     })(),
     (async () => {
+      // build/both/* -> build/electron/* , build/site/resources/*
+      logger.info("Creating links for resources in the electron and site/resources directory...");
+      try {
+        await Promise.all((await find("build/both/*")).map(async (resource) => {
+          await fs.promises.symlink(path.resolve(resource), path.resolve(resource.replace(/both/, "electron")), "junction");
+          await fs.promises.symlink(path.resolve(resource), path.resolve(resource.replace(/both/, "site/resources")), "junction");
+          logger.debug(`Created a link for "${resource}".`);
+        }));
+      } catch (err) {
+        logger.error(err);
+        logger.error("Failed to create resources links.");
+        throw new Error();
+      }
+      logger.info("Completed creating resources links!");
+    })(),
+    (async () => {
       // build/site/resources/libs/ -> build/libs/
       logger.info(
         "Creating a link for the libs directory in the site/resources directory..."
@@ -435,7 +455,7 @@ tasks.set("BUILD", async (logger) => {
       try {
         await fs.promises.symlink(
           path.resolve("build/libs"),
-          path.resolve("build/site/resources/libs"),
+          path.resolve("build/site/libs"),
           "junction"
         );
       } catch (err) {
