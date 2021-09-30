@@ -23,78 +23,80 @@
 /* imports */
 
 import * as electron from "electron";
-import * as glob from "glob";
-import * as util from "util";
 
-/* utils */
-
-const find = util.promisify(glob);
+import * as utils from "./utils";
 
 /* module */
 
 export function register() {
+  const logger = utils.newLogger("ITEMS");
   electron.ipcMain.handle("items.get", async (event, category: string) => {
+    logger.info(`Fetching items from "${category}"...`);
     if (false) {
       const items = new Array<any>();
-    } else return {
-      games: [
-        {
-          id: "ArcherStory",
-          title: "アーチャー物語",
-          version: "1.2",
-          description: "スマホゲーム「アーチャー伝説」のパクリゲームです。",
-          author: "２匹のりす",
-          added: 2020,
-          game: {
-            file: {
-              win32: "ArcherStory_v1.2.exe",
-              win64: "ArcherStory_v1.2.exe",
-              winarm: "ArcherStory_v1.2.exe",
+    } else
+      return {
+        games: [
+          {
+            id: "ArcherStory",
+            title: "アーチャー物語",
+            version: "1.2",
+            description: "スマホゲーム「アーチャー伝説」のパクリゲームです。",
+            author: "２匹のりす",
+            added: 2020,
+            game: {
+              file: {
+                win32: "ArcherStory_v1.2.exe",
+                win64: "ArcherStory_v1.2.exe",
+                winarm: "ArcherStory_v1.2.exe",
+              },
+              offline: true,
+              difficulty: 1,
             },
-            offline: true,
-            difficulty: 1,
           },
-        },
-        {
-          id: "TheActionOfLookSerious",
-          title: "真顔のアクション Version 2",
-          version: "2.0",
-          description:
-            "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
-          author: "２匹のりす",
-          added: 2019,
-          game: {
-            file: {
-              win32: "TheActionOfLookSerious_v2.0.exe",
-              win64: "TheActionOfLookSerious_v2.0.exe",
-              winarm: "TheActionOfLookSerious_v2.0.exe",
+          {
+            id: "TheActionOfLookSerious",
+            title: "真顔のアクション Version 2",
+            version: "2.0",
+            description:
+              "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
+            author: "２匹のりす",
+            added: 2019,
+            game: {
+              file: {
+                win32: "TheActionOfLookSerious_v2.0.exe",
+                win64: "TheActionOfLookSerious_v2.0.exe",
+                winarm: "TheActionOfLookSerious_v2.0.exe",
+              },
+              offline: true,
+              difficulty: 2,
             },
-            offline: true,
-            difficulty: 2,
           },
-        },
-      ],
-      movies: [
-        {
-          id: "CoolestOfWorld",
-          title: "世界最高にかっこいい動画",
-          version: "1.0.0",
-          description:
-            "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
-          author: "かわいい鶏",
-          added: 2021,
-          movie: {
-            file: "CoolestOfWorld.mp4",
+        ],
+        movies: [
+          {
+            id: "CoolestOfWorld",
+            title: "世界最高にかっこいい動画",
+            version: "1.0.0",
+            description:
+              "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
+            author: "かわいい鶏",
+            added: 2021,
+            movie: {
+              file: "CoolestOfWorld.mp4",
+            },
           },
-        },
-      ],
-      others: [],
-    }[category];
+        ],
+        others: [],
+      }[category];
   });
 
   electron.ipcMain.handle(
     "items.launch",
     (event, id: string, platform: string, args: string[]) => {
+      logger.info(
+        `Launching "${id}" as ${platform}... (args: ${JSON.stringify(args)})`
+      );
       // launch program
     }
   );

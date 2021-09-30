@@ -6,13 +6,13 @@
  * CreationDate: Sep 9, 2021
  * --------------------------------------------------------------------------------
  * Copyright 2021 APC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -84,7 +84,8 @@ function isElectron(): boolean {
 }
 
 function changeExtra(newPath: string): void {
-  history.replaceState("", "", `${extra.top()}launcher/${newPath}`);
+  if (!isElectron())
+    history.replaceState("", "", `${extra.top()}launcher/${newPath}`);
   extra.path = newPath;
 }
 
@@ -173,6 +174,7 @@ const updateItems: () => Promise<void> = (() => {
   let nowId = -1;
   return async () => {
     const id = ++nowId;
+    console.log("Updating items...");
     // 読み込み中画面を重ねる
     document
       .querySelectorAll<Element>("main > .box > .loading")
@@ -191,103 +193,107 @@ const updateItems: () => Promise<void> = (() => {
           break;
       }
     }
-    //await new Promise((resolve) => setTimeout(resolve, 100));
-    // 自身のIDが現在のIDと一致する場合のみ描画
-    if (id === nowId) {
-      // itemsを更新する
-      for (const itemList of document.querySelectorAll<Element>(
-        "main > .box > .items"
-      )) {
-        itemList.innerHTML = "";
-        itemList.classList.remove("games", "movies", "others");
-        itemList.classList.add(tab);
-        for (const item of items[tab]) {
-          // アイテムを作る
-          const button = document.createElement("button");
-          // 画像があればその画像をアイコンに、なければゲームパッドを
-          try {
-            const icon = document.createElement("img");
-            icon.src = await resolveImage(
-              `${extra.top()}${constants.page.top}${isElectron() ? "../" : ""}items/${tab}/${item.id}/icon.png`
-            );
-            icon.classList.add("icon");
-            button.appendChild(icon);
-          } catch (err) {
-            const icon = document.createElement("div");
-            icon.innerHTML = `<i class="fas fa-${
-              { games: "gamepad", movies: "film", others: "splotch" }[
-                item.category
-              ]
-            } fa-lg"></i>`;
-            icon.classList.add("icon");
-            button.appendChild(icon);
-          }
-          // その他テキスト群
-          const appendInfo = (
-            infoType: string,
-            fill: (div: HTMLDivElement) => void
-          ): void => {
-            const div = document.createElement("div");
-            div.classList.add(infoType);
-            fill(div);
-            button.appendChild(div);
-          };
-          appendInfo("title", (div) => {
-            const ellipsis = document.createElement("div");
-            ellipsis.classList.add("ellipsis");
-            ellipsis.innerText = item.title;
-            div.appendChild(ellipsis);
-          });
-          appendInfo("author", (div) => {
-            const ellipsis = document.createElement("div");
-            ellipsis.classList.add("ellipsis");
-            ellipsis.innerText = item.author ?? "製作者不明";
-            div.appendChild(ellipsis);
-          });
-          if (item.category === "games") {
-            // ゲームのみ
-            const difficulty: 0 | 1 | 2 = (item as Game).game.difficulty;
-            appendInfo(
-              "difficulty",
-              (div) =>
-                (div.innerHTML = `<span class="${
-                  ["easy", "normal", "hard"][difficulty]
-                }"><i class="fas fa-${
-                  ["laugh", "smile", "angry"][difficulty]
-                } fa-2x"></i></span><span class="wide-only">&thinsp;${
-                  ["かんたん", "ふつう", "むずかしい"][difficulty]
-                }</span>`)
-            );
-            button.classList.add("is-game");
-          }
-          appendInfo("version", (div) => {
-            div.innerHTML = '<span class="wide-only">バージョン</span>';
-            div.appendChild(document.createTextNode(`${item.version}`));
-          });
-          appendInfo(
-            "added",
-            (div) =>
-              (div.innerHTML = `${item.added}<span class="wide-only">年度版</span>`)
-          );
-          // アイテムを追加する
-          const li = document.createElement("li");
-          li.appendChild(button);
-          itemList.appendChild(li);
-        }
-      }
-      // previewを消す
-      itemId = null;
-      document
-        .querySelectorAll<Element>("main > .box > .preview > .item")
-        .forEach((preview) => preview.classList.add("hide"));
-      document
-        .querySelectorAll<Element>("main > .box > .preview > .unselected")
-        .forEach((preview) => preview.classList.remove("hide"));
-      // 読み込み中画面を消す
-      document
-        .querySelectorAll<Element>("main > .box > .loading")
-        .forEach((box) => box.classList.add("hide"));
+    // 自身のIDが現在のIDと一致しない場合は描画しない
+    if (id !== nowId) {
+      console.log("Updated list of items has been aborted.");
+      return;
     }
+    // itemsを更新する
+    for (const itemList of document.querySelectorAll<Element>(
+      "main > .box > .items"
+    )) {
+      itemList.innerHTML = "";
+      itemList.classList.remove("games", "movies", "others");
+      itemList.classList.add(tab);
+      for (const item of items[tab]) {
+        // アイテムを作る
+        const button = document.createElement("button");
+        // 画像があればその画像をアイコンに、なければゲームパッドを
+        try {
+          const icon = document.createElement("img");
+          icon.src = await resolveImage(
+            `${extra.top()}${constants.page.top}${
+              isElectron() ? "../" : ""
+            }items/${tab}/${item.id}/icon.png`
+          );
+          icon.classList.add("icon");
+          button.appendChild(icon);
+        } catch (err) {
+          const icon = document.createElement("div");
+          icon.innerHTML = `<i class="fas fa-${
+            { games: "gamepad", movies: "film", others: "splotch" }[
+              item.category
+            ]
+          } fa-lg"></i>`;
+          icon.classList.add("icon");
+          button.appendChild(icon);
+        }
+        // その他テキスト群
+        const appendInfo = (
+          infoType: string,
+          fill: (div: HTMLDivElement) => void
+        ): void => {
+          const div = document.createElement("div");
+          div.classList.add(infoType);
+          fill(div);
+          button.appendChild(div);
+        };
+        appendInfo("title", (div) => {
+          const ellipsis = document.createElement("div");
+          ellipsis.classList.add("ellipsis");
+          ellipsis.innerText = item.title;
+          div.appendChild(ellipsis);
+        });
+        appendInfo("author", (div) => {
+          const ellipsis = document.createElement("div");
+          ellipsis.classList.add("ellipsis");
+          ellipsis.innerText = item.author ?? "製作者不明";
+          div.appendChild(ellipsis);
+        });
+        if (item.category === "games") {
+          // ゲームのみ
+          const difficulty: 0 | 1 | 2 = (item as Game).game.difficulty;
+          appendInfo(
+            "difficulty",
+            (div) =>
+              (div.innerHTML = `<span class="${
+                ["easy", "normal", "hard"][difficulty]
+              }"><i class="fas fa-${
+                ["laugh", "smile", "angry"][difficulty]
+              } fa-2x"></i></span><span class="wide-only">&thinsp;${
+                ["かんたん", "ふつう", "むずかしい"][difficulty]
+              }</span>`)
+          );
+          button.classList.add("is-game");
+        }
+        appendInfo("version", (div) => {
+          div.innerHTML = '<span class="wide-only">バージョン</span>';
+          div.appendChild(document.createTextNode(`${item.version}`));
+        });
+        appendInfo(
+          "added",
+          (div) =>
+            (div.innerHTML = `${item.added}<span class="wide-only">年度版</span>`)
+        );
+        // アイテムを追加する
+        const li = document.createElement("li");
+        li.appendChild(button);
+        itemList.appendChild(li);
+      }
+    }
+    // previewを消す
+    itemId = null;
+    document
+      .querySelectorAll<Element>("main > .box > .preview > .item")
+      .forEach((preview) => preview.classList.add("hide"));
+    document
+      .querySelectorAll<Element>("main > .box > .preview > .unselected")
+      .forEach((preview) => preview.classList.remove("hide"));
+    // 読み込み中画面を消す
+    document
+      .querySelectorAll<Element>("main > .box > .loading")
+      .forEach((box) => box.classList.add("hide"));
+    console.log("Completed updating items!");
   };
 })();
 
@@ -305,6 +311,7 @@ function switchItem(itemName: string): void {
 // register events
 
 window.onload = (event) => {
+  console.log("The launcher page is now loaded.");
   maximizingAdjustment();
   updateItems();
   // 文化祭モードではないときはゲーム以外のタブの非表示を解除
