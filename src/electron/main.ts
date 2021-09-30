@@ -55,9 +55,9 @@ function createWindow() {
     width: 1280,
     height: 768,
     autoHideMenuBar: true,
-    //kiosk: true,
-    //fullscreen: true,
-    //frame: false,
+    kiosk: config.exhibition,
+    fullscreen: config.exhibition,
+    frame: !config.exhibition,
     webPreferences: {
       preload: path.join(__dirname, "electron.js"),
     },
