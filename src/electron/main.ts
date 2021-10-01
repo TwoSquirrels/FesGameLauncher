@@ -75,7 +75,8 @@ const config = (() => {
     );
 
     // Register events
-    electron.ipcMain.handle("config", async (event) => config);
+    electron.ipcMain.handle("utils.userDataPath", async (_event, ...paths: string[]) => utils.userDataPath(...paths))
+    electron.ipcMain.handle("constants.config", async (_event) => config);
     items.register();
 
     // Create a window

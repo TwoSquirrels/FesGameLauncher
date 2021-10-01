@@ -70,7 +70,7 @@
   "dependencies": {
     "electron": "^13.1.9",
     "fs-extra": "^10.0.0",
-    "glob": "^7.1.7",
+    "glob": "^7.2.0",
     "log4js": "^6.3.0"
   },
   "devDependencies": {

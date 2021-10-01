@@ -380,6 +380,8 @@ tasks.set("BUILD", async (logger) => {
           );
           // ページのパスを取得
           page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
+          // ページの独自データを取得
+          page.data = (await find("tasks/build/ejsData.{js,ts}")).length ? page.data = require("./tasks/build/ejsData")(page) : null;
           // レンダリングしたEJSをHTMLファイルに書き込み
           await fs.promises.writeFile(
             `build/site/${page.path}.html`,
@@ -495,7 +497,7 @@ tasks.set("SERVER", async (logger) => {
   try {
     const root = path.resolve("build/site");
     app.use(express.static(root, { extensions: ["html", "htm"] }));
-    app.use((req, res) => res.status(404).sendFile("404.html", { root }));
+    app.use((_req, res) => res.status(404).sendFile("404.html", { root }));
     server = await startServer(app, 8080);
   } catch (err) {
     logger.error(err);
@@ -540,24 +542,26 @@ if (process.argv.length <= 2) {
   console.log(hr(80, "="));
 
   // load tasks
-  (await find("tasks/*", { nodir: true })).forEach((taskScript: string) => {
-    try {
-      const task = require(`./${taskScript}`);
-      if (typeof task !== "function")
-        throw new Error(
-          `This module is not a function.\nIt's a ${typeof task}.`
-        );
-      if (task.constructor.name !== "AsyncFunction")
-        throw new Error(
-          `This module is not a async function.\nIt's a ${typeof task}.`
-        );
-      tasks.set(path.parse(taskScript).name.toUpperCase(), task);
-    } catch (err) {
-      console.log("");
-      console.error(`Failed to load "${taskScript}".`);
-      console.error(err);
+  (await find("tasks/*.{js,ts}", { nodir: true })).forEach(
+    (taskScript: string) => {
+      try {
+        const task = require(`./${taskScript}`);
+        if (typeof task !== "function")
+          throw new Error(
+            `This module is not a function.\nIt's a ${typeof task}.`
+          );
+        if (task.constructor.name !== "AsyncFunction")
+          throw new Error(
+            `This module is not a async function.\nIt's a ${typeof task}.`
+          );
+        tasks.set(path.parse(taskScript).name.toUpperCase(), task);
+      } catch (err) {
+        console.log("");
+        console.error(`Failed to load "${taskScript}".`);
+        console.error(err);
+      }
     }
-  });
+  );
 
   try {
     for (let iThTask = 2; iThTask < process.argv.length; ++iThTask) {

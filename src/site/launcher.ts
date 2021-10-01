@@ -26,15 +26,19 @@
 
 // contents
 
-type Item = {
+type ItemOrError = {
   id: string;
+  category: "games" | "movies" | "others";
+  error?: Error;
+};
+type Item = ItemOrError & {
   title: string;
   version: string;
   description?: string;
   author?: string;
   added: number;
   prenotice?: boolean;
-  category: "games" | "movies" | "others";
+  error?: undefined;
 };
 type Game = Item & {
   game: {
@@ -48,7 +52,7 @@ type Game = Item & {
       linuxarm64?: string;
       site?: string;
     };
-    offline: boolean;
+    offline?: boolean;
     difficulty: 0 | 1 | 2;
   };
 };
@@ -64,11 +68,16 @@ type Other = Item & {
 };
 
 declare const electron: {
-  config: Promise<{
-    exhibition?: boolean;
-  }>;
+  utils: {
+    userDataPath: (...paths: string[]) => Promise<string>;
+  };
+  constants: {
+    config: Promise<{
+      exhibition?: boolean;
+    }>;
+  };
   items: {
-    get: (category: string) => Promise<(Game | Movie | Other)[]>;
+    get: (category: string) => Promise<ItemOrError[]>;
     launch: (
       id: string,
       platform: string,
@@ -89,72 +98,7 @@ function changeExtra(newPath: string): void {
   extra.path = newPath;
 }
 
-const items: {
-  games: Game[];
-  movies: Movie[];
-  others: Other[];
-} = JSON.parse(
-  JSON.stringify(
-    constants.page.data?.items ?? {
-      // { games: null, movies: null, others: null }
-      games: [
-        {
-          id: "ArcherStory",
-          title: "アーチャー物語",
-          version: "1.2",
-          description: "スマホゲーム「アーチャー伝説」のパクリゲームです。",
-          author: "２匹のりす",
-          added: 2020,
-          game: {
-            file: {
-              win32: "ArcherStory_v1.2.exe",
-              win64: "ArcherStory_v1.2.exe",
-              winarm: "ArcherStory_v1.2.exe",
-            },
-            offline: true,
-            difficulty: 1,
-          },
-          category: "games",
-        },
-        {
-          id: "TheActionOfLookSerious",
-          title: "真顔のアクション Version 2",
-          version: "2.0",
-          description:
-            "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
-          author: "２匹のりす",
-          added: 2019,
-          game: {
-            file: {
-              win32: "TheActionOfLookSerious_v2.0.exe",
-              win64: "TheActionOfLookSerious_v2.0.exe",
-              winarm: "TheActionOfLookSerious_v2.0.exe",
-            },
-            offline: true,
-            difficulty: 2,
-          },
-          category: "games",
-        },
-      ],
-      movies: [
-        {
-          id: "CoolestOfWorld",
-          title: "世界最高にかっこいい動画",
-          version: "1.0.0",
-          description:
-            "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
-          author: "かわいい鶏",
-          added: 2021,
-          movie: {
-            file: "CoolestOfWorld.mp4",
-          },
-          category: "movies",
-        },
-      ],
-      others: [],
-    }
-  )
-);
+let items: ItemOrError[] = [];
 let tab: "games" | "movies" | "others" = (() => {
   switch (extra.path.split("/")[0]) {
     case "games":
@@ -169,52 +113,136 @@ let tab: "games" | "movies" | "others" = (() => {
 })();
 let itemId: string | null = extra.path.split("/")[1] ?? null;
 
-const updateItems: () => Promise<void> = (() => {
-  // 別のタブが読み込まれる前だったときに前のタブを反映させないためのID
-  let nowId = -1;
-  return async () => {
-    const id = ++nowId;
-    console.log("Updating items...");
-    // 読み込み中画面を重ねる
-    document
-      .querySelectorAll<Element>("main > .box > .loading")
-      .forEach((box) => box.classList.remove("hide"));
-    // Electronの場合読み込み
-    if (isElectron()) {
-      switch (tab) {
-        case "games":
-          items.games = (await electron.items.get("games")) as Game[];
-          break;
-        case "movies":
-          items.movies = (await electron.items.get("movies")) as Movie[];
-          break;
-        case "others":
-          items.others = (await electron.items.get("others")) as Other[];
-          break;
-      }
-    }
-    // 自身のIDが現在のIDと一致しない場合は描画しない
-    if (id !== nowId) {
-      console.log("Updated list of items has been aborted.");
-      return;
-    }
-    // itemsを更新する
-    for (const itemList of document.querySelectorAll<Element>(
-      "main > .box > .items"
-    )) {
-      itemList.innerHTML = "";
-      itemList.classList.remove("games", "movies", "others");
-      itemList.classList.add(tab);
-      for (const item of items[tab]) {
-        // アイテムを作る
+const updateItems = async () => {
+  console.log("Updating items...");
+  // 読み込み中画面を重ねる
+  document
+    .querySelectorAll<Element>("main > .box > .loading")
+    .forEach((box) => box.classList.remove("hide"));
+  // 読み込み
+  items = isElectron()
+    ? await electron.items.get(tab)
+    : constants.page.data?.items?.[tab] ?? //[]
+      {
+        games: [
+          {
+            id: "ArcherStory",
+            title: "アーチャー物語",
+            version: "1.2",
+            description: "スマホゲーム「アーチャー伝説」のパクリゲームです。",
+            author: "２匹のりす",
+            added: 2020,
+            game: {
+              file: {
+                win32: "ArcherStory_v1.2.exe",
+                win64: "ArcherStory_v1.2.exe",
+                winarm: "ArcherStory_v1.2.exe",
+              },
+              offline: true,
+              difficulty: 1,
+            },
+            category: "games",
+          },
+          {
+            id: "TheActionOfLookSerious",
+            title: "真顔のアクション Version 2",
+            version: "2.0",
+            description:
+              "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
+            author: "２匹のりす",
+            added: 2019,
+            game: {
+              file: {
+                win32: "TheActionOfLookSerious_v2.0.exe",
+                win64: "TheActionOfLookSerious_v2.0.exe",
+                winarm: "TheActionOfLookSerious_v2.0.exe",
+              },
+              offline: true,
+              difficulty: 2,
+            },
+            category: "games",
+          },
+        ],
+        movies: [
+          {
+            id: "CoolestOfWorld",
+            title: "世界最高にかっこいい動画",
+            version: "1.0.0",
+            description:
+              "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
+            author: "かわいい鶏",
+            added: 2021,
+            movie: {
+              file: "CoolestOfWorld.mp4",
+            },
+            category: "movies",
+          },
+        ],
+        others: [],
+      }[tab];
+  // itemsを更新する
+  for (const itemList of document.querySelectorAll<Element>(
+    "main > .box > .items"
+  )) {
+    itemList.innerHTML = "";
+    itemList.classList.remove("games", "movies", "others");
+    itemList.classList.add(tab);
+    for (const itemOrError of items) {
+      // アイテムを作る
+      if (itemOrError.error) {
+        // エラーアイテムの場合
+        const error = document.createElement("div");
+        error.classList.add("error");
+        // notice
+        const notice = document.createElement("div");
+        notice.classList.add("notice");
+        notice.innerHTML = '<i class="fas fa-exclamation-triangle"></i>&thinsp;アイテムの読み込みに失敗しました';
+        error.appendChild(notice);
+        // id
+        const id = document.createElement("div");
+        id.classList.add("id");
+        id.innerHTML = "アイテムID:&thinsp;";
+        // id/code
+        const code = document.createElement("code");
+        code.innerText = itemOrError.id;
+        id.appendChild(code);
+        error.appendChild(id);
+        const li = document.createElement("li");
+        li.appendChild(error);
+        itemList.appendChild(li);
+        console.error(
+          `Failed to add "${itemOrError.id}" in ${tab} to the list.`
+        );
+      } else {
+        // 正常に読み込めている場合
+        const item: Item = itemOrError as Item;
         const button = document.createElement("button");
         // 画像があればその画像をアイコンに、なければゲームパッドを
         try {
           const icon = document.createElement("img");
+          console.log(
+            isElectron()
+              ? await electron.utils.userDataPath(
+                  "items",
+                  tab,
+                  item.id,
+                  "icon.png"
+                )
+              : `${extra.top()}${constants.page.top}items/${tab}/${
+                  item.id
+                }/icon.png`
+          );
           icon.src = await resolveImage(
-            `${extra.top()}${constants.page.top}${
-              isElectron() ? "../" : ""
-            }items/${tab}/${item.id}/icon.png`
+            isElectron()
+              ? await electron.utils.userDataPath(
+                  "items",
+                  tab,
+                  item.id,
+                  "icon.png"
+                )
+              : `${extra.top()}${constants.page.top}items/${tab}/${
+                  item.id
+                }/icon.png`
           );
           icon.classList.add("icon");
           button.appendChild(icon);
@@ -273,29 +301,32 @@ const updateItems: () => Promise<void> = (() => {
         appendInfo(
           "added",
           (div) =>
-            (div.innerHTML = `${item.added}<span class="wide-only">年度版</span>`)
+            (div.innerHTML =
+              item.added === new Date().getFullYear()
+                ? '<span class="new">NEW!</span>'
+                : `${item.added}<span class="wide-only">年度版</span>`)
         );
         // アイテムを追加する
         const li = document.createElement("li");
         li.appendChild(button);
         itemList.appendChild(li);
+        console.log(`Successfully added "${item.id}" in ${tab} to the list.`);
       }
     }
-    // previewを消す
-    itemId = null;
-    document
-      .querySelectorAll<Element>("main > .box > .preview > .item")
-      .forEach((preview) => preview.classList.add("hide"));
-    document
-      .querySelectorAll<Element>("main > .box > .preview > .unselected")
-      .forEach((preview) => preview.classList.remove("hide"));
-    // 読み込み中画面を消す
-    document
-      .querySelectorAll<Element>("main > .box > .loading")
-      .forEach((box) => box.classList.add("hide"));
-    console.log("Completed updating items!");
-  };
-})();
+  }
+  // previewを消す
+  document
+    .querySelectorAll<Element>("main > .box > .preview > .item")
+    .forEach((preview) => preview.classList.add("hide"));
+  document
+    .querySelectorAll<Element>("main > .box > .preview > .unselected")
+    .forEach((preview) => preview.classList.remove("hide"));
+  // 読み込み中画面を消す
+  document
+    .querySelectorAll<Element>("main > .box > .loading")
+    .forEach((box) => box.classList.add("hide"));
+  console.log("Completed updating items!");
+};
 
 function switchTab(tabName: "games" | "movies" | "others"): void {
   tab = tabName;
@@ -316,7 +347,7 @@ window.onload = (event) => {
   updateItems();
   // 文化祭モードではないときはゲーム以外のタブの非表示を解除
   (async () => {
-    if (!isElectron() || !(await electron.config).exhibition)
+    if (!isElectron() || !(await electron.constants.config).exhibition)
       document
         .querySelectorAll<Element>("main > .box > .tabs > li.erase")
         .forEach((tab) => tab.classList.remove("erase"));
