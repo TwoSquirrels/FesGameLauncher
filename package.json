@@ -3,6 +3,7 @@
   "version": "1.0.0-SNAPSHOT",
   "description": "文化祭のためのゲームランチャー",
   "scripts": {
+    "tasks": "ts-node build.ts",
     "cleanlog": "ts-node build.ts cleanlog",
     "clean": "ts-node build.ts clean",
     "build": "ts-node build.ts clean build",
@@ -16,6 +17,10 @@
     "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
   },
   "keywords": [
+    "TypeScript",
+    "EJS",
+    "Sass",
+    "Font Awesome",
     "Electron"
   ],
   "author": "TwoSquirrels",
@@ -63,10 +68,9 @@
     }
   ],
   "dependencies": {
-    "dateformat": "^4.5.1",
     "electron": "^13.1.9",
     "fs-extra": "^10.0.0",
-    "glob": "^7.1.7",
+    "glob": "^7.2.0",
     "log4js": "^6.3.0"
   },
   "devDependencies": {
@@ -78,6 +82,7 @@
     "@types/glob": "^7.1.4",
     "@types/node": "^16.4.13",
     "@types/opener": "^1.4.0",
+    "dateformat": "^4.6.3",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "opener": "^1.5.2",

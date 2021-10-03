@@ -6,6 +6,7 @@
         "cleanlog",
         "fesgamelauncher",
         "fontawesome",
+        "globby",
         "linuxarm",
         "nodir",
         "prenotice",
@@ -14,5 +15,6 @@
         "waitkey",
         "webfonts",
         "winarm"
-    ]
+    ],
+    "discord.enabled": true
 }

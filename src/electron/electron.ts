@@ -31,15 +31,22 @@ import * as electron from "electron";
 ////////////////////////////////////////////////////////////////////////////////
 
 electron.contextBridge.exposeInMainWorld("electron", {
-  config: electron.ipcRenderer.invoke("config"),
+  utils: {
+    userDataPath: (...paths: string[]) => electron.ipcRenderer.invoke("utils.userDataPath", ...paths),
+  },
+  constants: {
+    config: electron.ipcRenderer.invoke("constants.config"),
+  },
   items: {
-    get: async (category: string) => {
-      const items: any[] = await electron.ipcRenderer.invoke("items.get", category);
-      items.forEach((item) => item.category = category);
-      return items;
-    },
-    launch: (id: string, platform: string, args?: string[]) => {
-      electron.ipcRenderer.invoke("items.launch", id, platform, args ?? []);
+    get: async (category: string) =>
+      await electron.ipcRenderer.invoke("items.get", category),
+    launch: async (id: string, platform: string, args?: string[]) => {
+      await electron.ipcRenderer.invoke(
+        "items.launch",
+        id,
+        platform,
+        args ?? []
+      );
     },
   },
 });
