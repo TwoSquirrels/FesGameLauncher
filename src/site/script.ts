@@ -47,7 +47,7 @@ declare const constants: {
     };
     path: string;
     top: string;
-    data?: any;
+    data: any;
   };
 };
 declare const extra: { path: string; top: () => string };

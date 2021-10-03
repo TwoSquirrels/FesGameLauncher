@@ -1,9 +1,9 @@
 /*!
  * ProjectName: fesgamelauncher
- * FileName: style.scss
+ * FileName: publish.ts
  * Encoding: UTF-8
  * Author: TwoSquirrels
- * CreationDate: Sep 11, 2021
+ * CreationDate: Sep 29, 2021
  * --------------------------------------------------------------------------------
  * Copyright 2021 APC
  * 
@@ -20,15 +20,15 @@
  * limitations under the License.
  */
 
-:root {
-  --width: 100vw;
-  --height: 100vh;
-}
+// imports
 
-.hide {
-  visibility: hidden;
-}
+import log4js from "log4js";
 
-.erase {
-  display: none;
+// task
+
+module.exports = async (logger: log4js.Logger) => {
+
+  // TODO: EJSをどうにかする
+  logger.info("This is publish task!!!");
+
 }

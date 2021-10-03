@@ -23,70 +23,150 @@
 /* imports */
 
 import * as electron from "electron";
+import * as fs from "fs-extra";
+
+import * as utils from "./utils";
 
 /* module */
 
 export function register() {
-  electron.ipcMain.handle("items.get", async (event, category: string) => {
-    return {
-      games: [
-        {
-          id: "ArcherStory",
-          title: "アーチャー物語",
-          version: "1.2",
-          description: "スマホゲーム「アーチャー伝説」のパクリゲームです。",
-          author: "２匹のりす",
-          added: 2020,
-          game: {
-            file: {
-              win32: "ArcherStory_v1.2.exe",
-              win64: "ArcherStory_v1.2.exe",
-              winarm: "ArcherStory_v1.2.exe",
-            },
-            offline: true,
-            difficulty: 1,
-          },
-        },
-        {
-          id: "TheActionOfLookSerious",
-          title: "真顔のアクション Version 2",
-          version: "2.0",
-          description:
-            "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
-          author: "２匹のりす",
-          added: 2019,
-          game: {
-            file: {
-              win32: "TheActionOfLookSerious_v2.0.exe",
-              win64: "TheActionOfLookSerious_v2.0.exe",
-              winarm: "TheActionOfLookSerious_v2.0.exe",
-            },
-            offline: true,
-            difficulty: 2,
-          },
-        },
-      ],
-      movies: [
-        {
-          id: "CoolestOfWorld",
-          title: "世界最高にかっこいい動画",
-          version: "1.0.0",
-          description:
-            "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
-          author: "かわいい鶏",
-          added: 2021,
-          movie: {
-            file: "CoolestOfWorld.mp4",
-          },
-        },
-      ],
-      others: [],
-    }[category];
-  });
+  const logger = utils.newLogger("ITEMS");
+
+  electron.ipcMain.handle(
+    "items.get",
+    async (_event, category: "games" | "movies" | "others") => {
+      logger.info(
+        utils.lang({
+          EN: `Fetching items from "${category}"...`,
+          JP: `"${category}"のアイテム取得開始`,
+        })
+      );
+      const items: unknown[] = [];
+      await Promise.all(
+        (
+          await utils.find(
+            utils.userDataPath(`items/${category}/*/info.json`),
+            { nodir: true }
+          )
+        ).map(async (info) => {
+          try {
+            const item = await fs.readJson(info);
+            if (Object.prototype.toString.call(item) !== "[object Object]") throw new Error(utils.lang({
+              EN: `"${category}/${item.id}/info.json" is not an Object.`,
+              JP: `"${category}/${item.id}/info.json" が Object ではありません。`,
+            }));
+            item.id = info.split("/")[info.split("/").length - 2];
+            item.category = category;
+            // Confirm if format is valid
+            const missing: { property: string; type: string }[] = [];
+            if (typeof item.title !== "string")
+              missing.push({ property: "title", type: "string" });
+            if (typeof item.version !== "string")
+              missing.push({ property: "version", type: "string" });
+            if (item.description && typeof item.description !== "string")
+              missing.push({ property: "description", type: "string" });
+            if (item.author && typeof item.author !== "string")
+              missing.push({ property: "author", type: "string" });
+            if (typeof item.added !== "number")
+              missing.push({ property: "added", type: "number" });
+            if (item.prenotice && typeof item.prenotice !== "boolean")
+              missing.push({ property: "prenotice", type: "boolean" });
+            switch (category) {
+              case "games":
+                if (Object.prototype.toString.call(item.game) !== "[object Object]") {
+                  missing.push({ property: "game", type: "Object" });
+                  break;
+                }
+                if (Object.prototype.toString.call(item.game.file) !== "[object Object]")
+                  missing.push({
+                    property: "game.file",
+                    type: "Object",
+                  });
+                else
+                  for (const architecture in item.game.file) {
+                    if (typeof item.game.file[architecture] !== "string")
+                      missing.push({
+                        property: `game.file.${architecture}`,
+                        type: "string",
+                      });
+                  }
+                if (item.game.offline && typeof item.game.offline !== "boolean")
+                  missing.push({ property: "game.offline", type: "boolean" });
+                if (
+                  !(
+                    typeof item.game.difficulty === "number" &&
+                    (item.game.difficulty === 0 ||
+                      item.game.difficulty === 1 ||
+                      item.game.difficulty === 2)
+                  )
+                )
+                  missing.push({ property: "game.offline", type: "boolean" });
+                break;
+              case "movies":
+                if (Object.prototype.toString.call(item) !== "[object Object]") {
+                  missing.push({ property: "movie", type: "Object" });
+                  break;
+                }
+                if (typeof item.movie.file !== "string")
+                  missing.push({ property: "movie.file", type: "string" });
+                break;
+              case "others":
+                if (Object.prototype.toString.call(item) !== "[object Object]") {
+                  missing.push({ property: "other", type: "Object" });
+                  break;
+                }
+                if (typeof item.other.file !== "string")
+                  missing.push({ property: "other.file", type: "string" });
+                break;
+            }
+            if (missing.length > 0) {
+              missing.forEach((missing) =>
+                logger.error(
+                  utils.lang({
+                    EN: `The property "${missing.property}" of ${missing.type} is missing in "${category}/${item.id}/info.json".`,
+                    JP: `"${category}/${item.id}/info.json" 内に ${missing.type} のプロパティ "${missing.property}" が足りません。`,
+                  })
+                )
+              );
+              throw new Error(utils.lang({
+                EN: `"${category}/${item.id}/info.json" format is not valid.`,
+                JP: `"${category}/${item.id}/info.json" のフォーマットが正しくありません。`,
+              }));
+            }
+            // return data
+            logger.info(
+              utils.lang({
+                EN: `Fetched an item: ${JSON.stringify(item)}`,
+                JP: `アイテム取得成功: ${JSON.stringify(item)}`,
+              })
+            );
+            items.push(item);
+          } catch (error) {
+            logger.error(
+              utils.lang({
+                EN: "An error has occurred during loading an item.",
+                JP: "アイテム読み込み失敗",
+              })
+            );
+            logger.error(error);
+            items.push({
+              id: info.split("/")[info.split("/").length - 2],
+              category,
+              error,
+            });
+          }
+        })
+      );
+      return items;
+    }
+  );
 
   electron.ipcMain.handle(
     "items.launch",
-    (event, id: string, platform: string, args: string[]) => {
+    async (_event, id: string, platform: string, args: string[]) => {
+      logger.info(
+        `Launching "${id}" as ${platform}... (args: ${JSON.stringify(args)})`
+      );
       // launch program
     }
   );

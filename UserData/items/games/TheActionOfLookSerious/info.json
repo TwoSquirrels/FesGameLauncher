@@ -1,0 +1,16 @@
+{
+  "title": "真顔のアクション Version 2",
+  "version": "2.0",
+  "description": "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
+  "author": "２匹のりす",
+  "added": 2019,
+  "game": {
+    "file": {
+      "win32": "TheActionOfLookSerious_v2.0.exe",
+      "win64": "TheActionOfLookSerious_v2.0.exe",
+      "winarm": "TheActionOfLookSerious_v2.0.exe"
+    },
+    "offline": true,
+    "difficulty": 2
+  }
+}

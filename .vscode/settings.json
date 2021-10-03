@@ -6,11 +6,15 @@
         "cleanlog",
         "fesgamelauncher",
         "fontawesome",
+        "globby",
         "linuxarm",
+        "nodir",
+        "prenotice",
         "sourcemapped",
         "thinsp",
         "waitkey",
         "webfonts",
         "winarm"
-    ]
+    ],
+    "discord.enabled": true
 }
