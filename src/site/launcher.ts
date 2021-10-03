@@ -119,6 +119,14 @@ const updateItems = async () => {
   document
     .querySelectorAll<Element>("main > .box > .loading")
     .forEach((box) => box.classList.remove("hide"));
+  // 選択中タブの変更
+  document
+    .querySelectorAll<Element>("main > .box > .tabs > li")
+    .forEach((tabLi) =>
+      tabLi.classList.contains(tab)
+        ? tabLi.classList.add("selected")
+        : tabLi.classList.remove("selected")
+    );
   // 読み込み
   items = isElectron()
     ? await electron.items.get(tab)
@@ -144,7 +152,7 @@ const updateItems = async () => {
             category: "games",
           },
           {
-            id: "TheActionOfLookSerious",
+            id: "真顔のアクション ver2.0",
             title: "真顔のアクション Version 2",
             version: "2.0",
             description:
@@ -217,6 +225,8 @@ const updateItems = async () => {
         // 正常に読み込めている場合
         const item: Item = itemOrError as Item;
         const button = document.createElement("button");
+        button.setAttribute("onclick", `switchItem("${item.id}")`);
+        button.dataset.itemId = item.id;
         // 画像があればその画像をアイコンに、なければゲームパッドを
         try {
           const icon = document.createElement("img");
@@ -328,6 +338,17 @@ const updateItems = async () => {
   console.log("Completed updating items!");
 };
 
+const updatePreview = async () => {
+  // 選択中アイテムの変更
+  document
+    .querySelectorAll<HTMLElement>("main > .box > .items > li > button")
+    .forEach((button) =>
+      button.dataset.itemId === itemId
+        ? button.classList.add("selected")
+        : button.classList.remove("selected")
+    );
+};
+
 function switchTab(tabName: "games" | "movies" | "others"): void {
   tab = tabName;
   changeExtra(`${tab}`);
@@ -337,6 +358,7 @@ function switchTab(tabName: "games" | "movies" | "others"): void {
 function switchItem(itemName: string): void {
   itemId = itemName;
   changeExtra(`${tab}/${itemId}`);
+  updatePreview();
 }
 
 // register events
@@ -345,6 +367,7 @@ window.onload = (event) => {
   console.log("The launcher page is now loaded.");
   maximizingAdjustment();
   updateItems();
+  updatePreview();
   // 文化祭モードではないときはゲーム以外のタブの非表示を解除
   (async () => {
     if (!isElectron() || !(await electron.constants.config).exhibition)

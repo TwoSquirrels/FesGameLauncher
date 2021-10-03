@@ -95,6 +95,8 @@ const config = (() => {
       mainWindow = new electron.BrowserWindow({
         width: 1280,
         height: 768,
+        minWidth: 360,
+        minHeight: 480,
         autoHideMenuBar: true,
         kiosk: config.exhibition,
         fullscreen: config.exhibition,
