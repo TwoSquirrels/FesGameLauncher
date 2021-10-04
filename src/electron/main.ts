@@ -36,6 +36,7 @@ import * as items from "./items";
 const defaultConfig = {
   exhibition: false,
   log: "JP",
+  visibleNotOffline: "auto",  // never|auto|always
 };
 const config = (() => {
   const configPath = utils.userDataPath("config.json");
@@ -75,7 +76,8 @@ const config = (() => {
     );
 
     // Register events
-    electron.ipcMain.handle("utils.userDataPath", async (_event, ...paths: string[]) => utils.userDataPath(...paths))
+    electron.ipcMain.handle("utils.userDataPath", async (_event, ...paths: string[]) => utils.userDataPath(...paths));
+    electron.ipcMain.handle("utils.checkInternet", async (_event, timeout?: number, host?: string) => await utils.checkInternet(timeout, host));
     electron.ipcMain.handle("constants.config", async (_event) => config);
     items.register();
 

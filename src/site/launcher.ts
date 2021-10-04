@@ -70,10 +70,12 @@ type Other = Item & {
 declare const electron: {
   utils: {
     userDataPath: (...paths: string[]) => Promise<string>;
+    checkInternet: (timeout?: number, host?: string) => Promise<boolean>;
   };
   constants: {
     config: Promise<{
       exhibition?: boolean;
+      visibleNotOffline?: string;
     }>;
   };
   items: {
@@ -114,6 +116,12 @@ let tab: "games" | "movies" | "others" = (() => {
 let itemId: string | null = extra.path.split("/")[1] ?? null;
 
 const updateItems = async () => {
+  // 読み込み中ならキャンセル
+  document
+    .querySelectorAll<Element>("main > .box > .loading")
+    .forEach((box) => {
+      if (!box.classList.contains("hide")) throw null;
+    });
   console.log("Updating items...");
   // 読み込み中画面を重ねる
   document
@@ -189,6 +197,8 @@ const updateItems = async () => {
         ],
         others: [],
       }[tab];
+  // インターネット接続の確認
+  const internet = isElectron() ? await electron.utils.checkInternet() : true;
   // itemsを更新する
   for (const itemList of document.querySelectorAll<Element>(
     "main > .box > .items"
@@ -205,7 +215,8 @@ const updateItems = async () => {
         // notice
         const notice = document.createElement("div");
         notice.classList.add("notice");
-        notice.innerHTML = '<i class="fas fa-exclamation-triangle"></i>&thinsp;アイテムの読み込みに失敗しました';
+        notice.innerHTML =
+          '<i class="fas fa-exclamation-triangle"></i>&thinsp;アイテムの読み込みに失敗しました';
         error.appendChild(notice);
         // id
         const id = document.createElement("div");
@@ -225,6 +236,20 @@ const updateItems = async () => {
       } else {
         // 正常に読み込めている場合
         const item: Item = itemOrError as Item;
+        // フィルター
+        if (isElectron() && item.category === "games") {
+          const game = (item as Game).game;
+          switch ((await electron.constants.config).visibleNotOffline) {
+            case "never":
+              if (!(game.offline ?? true)) continue;
+              break;
+            case "always":
+              break;
+            default:
+              if (!(game.offline ?? true) && !internet) continue;
+              break;
+          }
+        }
         const button = document.createElement("button");
         button.setAttribute("onclick", `switchItem("${item.id}")`);
         button.dataset.itemId = item.id;
@@ -287,21 +312,19 @@ const updateItems = async () => {
         appendInfo("author", (div) => {
           const ellipsis = document.createElement("div");
           ellipsis.classList.add("ellipsis");
-          ellipsis.innerText = item.author ?? "製作者不明";
+          ellipsis.innerText = item.author ?? "制作者非公開";
           div.appendChild(ellipsis);
         });
         if (item.category === "games") {
           // ゲームのみ
-          const difficulty: 0 | 1 | 2 = (item as Game).game.difficulty;
+          const game = (item as Game).game;
           appendInfo(
             "difficulty",
             (div) =>
-              (div.innerHTML = `<span class="${
-                ["easy", "normal", "hard"][difficulty]
-              }"><i class="fas fa-${
-                ["laugh", "smile", "angry"][difficulty]
-              } fa-2x"></i></span><span class="wide-only">&thinsp;${
-                ["かんたん", "ふつう", "むずかしい"][difficulty]
+              (div.innerHTML = `<i class="fas fa-${
+                ["laugh", "smile", "angry"][game.difficulty]
+              } fa-2x"></i><span class="wide-only">&thinsp;${
+                ["かんたん", "ふつう", "むずかしい"][game.difficulty]
               }</span>`)
           );
           button.classList.add("is-game");
@@ -314,7 +337,7 @@ const updateItems = async () => {
           "added",
           (div) =>
             (div.innerHTML =
-              item.added === new Date().getFullYear()
+              item.added === getKonnendo()
                 ? '<span class="new">NEW!</span>'
                 : `${item.added}<span class="wide-only">年度版</span>`)
         );
@@ -327,20 +350,25 @@ const updateItems = async () => {
     }
   }
   // previewを消す
+  eraseElement("main > .box > .preview > .item");
+  unEraseElement("main > .box > .preview > .unselected");
+  // プレビューをちょっと変える
   document
-    .querySelectorAll<Element>("main > .box > .preview > .item")
-    .forEach((preview) => preview.classList.add("erase"));
-  document
-    .querySelectorAll<Element>("main > .box > .preview > .unselected")
-    .forEach((preview) => preview.classList.remove("erase"));
+    .querySelectorAll<HTMLElement>("main > .box > .preview > .item > .text > .game")
+    .forEach((gameOnly) =>
+      tab === "games" ? unEraseElement(gameOnly) : eraseElement(gameOnly)
+    );
+  console.log("Completed updating items!");
   // 読み込み中画面を消す
   document
     .querySelectorAll<Element>("main > .box > .loading")
     .forEach((box) => box.classList.add("hide"));
-  console.log("Completed updating items!");
 };
 
 const updatePreview = async () => {
+  const itemOrError = items.find((item) => item.id === itemId);
+  if (!itemOrError || itemOrError.error) return;
+  const item = itemOrError as Item;
   // 選択中アイテムの変更
   document
     .querySelectorAll<HTMLElement>("main > .box > .items > li > button")
@@ -349,7 +377,100 @@ const updatePreview = async () => {
         ? button.classList.add("selected")
         : button.classList.remove("selected")
     );
-};
+  // アイコン
+  document
+    .querySelectorAll<Element>("main > .box > .preview > .item > .text > .icon")
+    .forEach(async (icon) => {
+      try {
+        const img = document.createElement("img");
+        img.src = await resolveImage(
+          isElectron()
+            ? await electron.utils.userDataPath(
+                "items",
+                tab,
+                item.id,
+                "icon.png"
+              )
+            : `${extra.top()}${constants.page.top}items/${tab}/${
+                item.id
+              }/icon.png`
+        );
+        icon.innerHTML = "";
+        icon.appendChild(img);
+      } catch (err) {
+        icon.innerHTML = `<i class="fas fa-${
+          { games: "gamepad", movies: "film", others: "splotch" }[item.category]
+        } fa-lg"></i>`;
+      }
+    });
+  // テキスト類
+  document
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .title"
+    )
+    .forEach((title) => (title.innerText = item.title));
+  document
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .version"
+    )
+    .forEach((version) => (version.innerText = `バージョン ${item.version}`));
+  document
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .author"
+    )
+    .forEach(
+      (author) => (author.innerText = `制作者: ${item.author ?? "非公開"}`)
+    );
+  document
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .added"
+    )
+    .forEach((added) => (added.innerText = `${item.added}年度に公開`));
+  if (item.category === "games") {
+    const game = (item as Game).game;
+    document
+      .querySelectorAll<HTMLElement>(
+        "main > .box > .preview > .item > .text > .game > .difficulty"
+      )
+      .forEach(
+        (difficulty) =>
+          (difficulty.innerHTML = `<i class="fas fa-${
+            ["laugh", "smile", "angry"][game.difficulty]
+          } fa-lg"></i>&thinsp;${
+            ["かんたん　", "ふつう　　", "むずかしい"][game.difficulty]
+          }`)
+      );
+    document
+      .querySelectorAll<HTMLElement>(
+        "main > .box > .preview > .item > .text > .game > .offline"
+      )
+      .forEach(
+        (offline) =>
+          (offline.innerHTML = `<span style="color: ${
+            game.offline ?? true ? "dimgray" : "royalblue"
+          }; "><i class="fas fa-wifi fa-lg"></i></span>&thinsp;${
+            game.offline ?? true ? "オフライン対応" : "ネット環境必須"
+          }`)
+      );
+  }
+  document
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .description"
+    )
+    .forEach(
+      (description) =>
+        (description.innerHTML = decorationText(
+          item.description ??
+            "作者は相当この作品に自信があるようで、説明は用意されていません！？"
+        ))
+    );
+  // TODO: メディア
+  // TODO: 起動ボタン
+  // プレビューの更新
+  eraseElement("main > .box > .preview > .unselected");
+  unEraseElement("main > .box > .preview > .item");
+  onResize();
+};;
 
 function switchTab(tabName: "games" | "movies" | "others"): void {
   tab = tabName;
@@ -363,22 +484,26 @@ function switchItem(itemName: string): void {
   updatePreview();
 }
 
+function onResize(): void {
+  maximizingAdjustment();
+  document.documentElement.style.setProperty(
+    "--preview-height",
+    `${document.querySelector("main > .box > .preview > .item")?.clientHeight ?? 0}px`
+  );
+}
+
 // register events
 
-window.onload = (event) => {
+window.onload = () => {
   console.log("The launcher page is now loaded.");
-  maximizingAdjustment();
+  onResize();
   updateItems();
   updatePreview();
   // 文化祭モードではないときはゲーム以外のタブの非表示を解除
   (async () => {
     if (!isElectron() || !(await electron.constants.config).exhibition)
-      document
-        .querySelectorAll<Element>("main > .box > .tabs > li.erase")
-        .forEach((tab) => tab.classList.remove("erase"));
+      unEraseElement("main > .box > .tabs > li.erase")
   })();
 };
 
-window.onresize = (event) => {
-  maximizingAdjustment();
-};
+window.onresize = onResize;

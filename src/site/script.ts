@@ -73,3 +73,42 @@ function resolveImage(path: string): Promise<string> {
     image.src = path;
   });
 }
+
+function getKonnendo(): number {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 3);
+  return now.getFullYear();
+}
+
+function eraseElement(elements: string | HTMLElement | HTMLElement[]): void {
+  if (elements instanceof HTMLElement) {
+    elements.classList.add("erase");
+    elements.style.setProperty("display", "none");
+  } else if (elements instanceof Array) elements.forEach(eraseElement);
+  else document.querySelectorAll<HTMLElement>(elements).forEach(eraseElement);
+}
+
+function unEraseElement(elements: string | HTMLElement | HTMLElement[]): void {
+  if (elements instanceof HTMLElement) {
+    elements.classList.remove("erase");
+    elements.style.removeProperty("display");
+  } else if (elements instanceof Array) elements.forEach(unEraseElement);
+  else document.querySelectorAll<HTMLElement>(elements).forEach(unEraseElement);
+}
+
+/**
+ * 文字を装飾します(XSS対策もします)  
+ * **TODO**: 以下実装予定  
+ * - `<fas:` または `<fab:` と `>` の間に Font Awesome のアイコン名を入れることでアイコンを挿入する事ができます。
+ * - `<color:` と `>` の間にカラーコードまたはカラーネームを入れることでそれより後ろの文字に色をつけることができます。
+ *   `<colorless>` で色を戻せます。
+ * - `<bold>` より後ろは太字になり、 `<fine>` で戻せます。
+ */
+function decorationText(text: string): string {
+  return text.replace(/</g, "&lt;");
+}
+
+// initialization
+
+// とりあえずeraseを修正
+eraseElement(".erase");

@@ -32,7 +32,8 @@ import * as electron from "electron";
 
 electron.contextBridge.exposeInMainWorld("electron", {
   utils: {
-    userDataPath: (...paths: string[]) => electron.ipcRenderer.invoke("utils.userDataPath", ...paths),
+    userDataPath: async (...paths: string[]) => await electron.ipcRenderer.invoke("utils.userDataPath", ...paths),
+    checkInternet: async (timeout?: number, host?: string) => await electron.ipcRenderer.invoke("utils.checkInternet", timeout, host),
   },
   constants: {
     config: electron.ipcRenderer.invoke("constants.config"),

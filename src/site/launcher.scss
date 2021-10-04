@@ -20,15 +20,16 @@
  * limitations under the License.
  */
 
-$theme-color: #FFFFFF;
-$box-color: khaki;
-$games-color: lightgreen;
-$movies-color: aquamarine;
-$others-color: plum;
+$theme-color: #808080;
+$background-opacity: .75;
+$box-color: rgba(240, 230, 140, $background-opacity);
+$games-color: rgba(144, 238, 144, $background-opacity);
+$movies-color: rgba(127, 255, 212, $background-opacity);
+$others-color: rgba(221, 160, 221, $background-opacity);
 $shadow-radius: .5rem;
-$shadow-color: rgba(64, 64, 64, 1.0);
+$shadow-color: rgba(64, 64, 64, $background-opacity);
 
-@mixin focus($color: rgba(64, 64, 64, .25)) {
+@mixin focus($color: rgba(64, 64, 64, $background-opacity * .25)) {
   &:focus {
     background-color: $color;
   }
@@ -58,6 +59,13 @@ body {
   height: var(--height);
 
   background-color: $theme-color;
+
+  hr {
+
+    border-top: 1px dashed gray;
+    border-style: dashed;
+
+  }
 
   .prenotice::before {
 
@@ -96,6 +104,7 @@ body {
       flex: 1;
       margin: min(1rem, 2%);
 
+      overflow: hidden;
       box-shadow: 0 0 $shadow-radius 0 $shadow-color;
 
       &::before {
@@ -105,9 +114,9 @@ body {
         position: absolute;
         display: block;
 
-        top: 2em;
+        top: calc(50% + 1em);
         width: 100%;
-        height: calc(100% - 2em);
+        height: calc(50% - 1em);
 
         background-color: $box-color;
 
@@ -123,6 +132,7 @@ body {
         padding: 0;
 
         z-index: 32;
+        overflow-x: auto;
         list-style-type: none;
 
         > li {
@@ -143,20 +153,11 @@ body {
             background-color: $others-color;
           }
           &:not(.selected) {
-            box-shadow: inset 0 -#{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} #{$shadow-color};
+            box-shadow: inset 0 -#{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} $shadow-color;
           }
           &.selected {
             z-index: 40;
-            &.games {
-              box-shadow: #{$shadow-radius} 0 #{$shadow-radius} -#{$shadow-radius} #{$shadow-color};
-            }
-            &.movies {
-              box-shadow: -#{$shadow-radius} 0 #{$shadow-radius} -#{$shadow-radius} #{$shadow-color},
-                #{$shadow-radius} 0 #{$shadow-radius} -#{$shadow-radius} #{$shadow-color};
-            }
-            &.others {
-              box-shadow: -#{$shadow-radius} 0 #{$shadow-radius} -#{$shadow-radius} #{$shadow-color};
-            }
+            box-shadow: 0 0 $shadow-radius 0 $shadow-color;
           }
 
           > button {
@@ -229,7 +230,7 @@ body {
               @include focus();
             }
             &.selected {
-              background-color: rgba(0, 0, 0, .25);
+              background-color: rgba(0, 0, 0, $background-opacity * .25);
             }
 
             > * {
@@ -239,23 +240,6 @@ body {
 
               overflow: hidden;
 
-              > .ellipsis {
-
-                width: 100%;
-                height: 100%;
-
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-
-              }
-
-            }
-
-            @media screen and (max-width: 32em) {
-              .wide-only {
-                display: none;
-              }
             }
 
             > .icon {
@@ -289,21 +273,6 @@ body {
 
               grid-area: difficulty;
               height: 100%;
-
-              > span {
-
-                filter: drop-shadow(0 0 .125em white);
-                &.easy {
-                  color: dodgerblue;
-                }
-                &.normal {
-                  color: darkorange;
-                }
-                &.hard {
-                  color: orangered;
-                }
-
-              }
 
             }
 
@@ -346,7 +315,7 @@ body {
 
             text-align: left;
             overflow: hidden;
-            background-color: lightcoral;
+            background-color: rgba(240, 128, 128, $background-opacity);
 
             > * {
 
@@ -384,12 +353,189 @@ body {
         position: relative;
 
         flex: 1;
-        margin: 0;
         padding: min(1rem, 2%);
 
         z-index: 16;
-        box-shadow: inset 0 #{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} #{$shadow-color};
+        box-shadow: inset 0 #{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} $shadow-color;
         overflow: hidden;
+
+        > .item {
+
+          display: flex;
+
+          width: 100%;
+          height: 100%;
+
+          > .text {
+
+            text-align: left;
+
+            > .icon {
+
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              float: left;
+              width: 2em;
+              height: 2em;
+              margin: .25em;
+
+              > img {
+
+                width: 100%;
+                height: 100%;
+
+                object-fit: contain;
+
+              }
+
+            }
+
+            > .title {
+
+              margin: 0 0 .5em;
+
+            }
+
+            > span,
+            > .game > span {
+
+              display: inline-block;
+
+            }
+
+          }
+
+          > .media-and-buttons {
+
+            display: flex;
+
+            > .media {
+
+              aspect-ratio: 16 / 9;
+
+              background-color: purple;
+
+            }
+
+            > .launch-buttons {
+
+              background-color: green;
+
+            }
+
+          }
+
+          // 画面が横長 1:1 ~
+          @media (aspect-ratio: 1/1), (min-aspect-ratio: 1/1) {
+
+            flex-direction: row;
+
+            > * {
+
+              height: 100%;
+
+            }
+
+            > .text {
+
+              flex: 1;
+
+              overflow: auto;
+
+            }
+
+            > .media-and-buttons {
+
+              flex-direction: row;
+
+              > * {
+
+                height: 100%;
+
+              }
+
+              > .media {
+
+                width: calc(var(--preview-height) * 16 / 9);
+                margin: 0 min(1rem, 2%);
+
+              }
+
+              > .launch-buttons {
+
+                width: 8em;
+
+                overflow: auto;
+
+              }
+
+            }
+
+          }
+
+          // 横長じゃない ~ 1:1
+          @media (max-aspect-ratio: 1/1) {
+
+            flex-direction: column;
+
+            overflow: auto;
+
+            > * {
+
+              width: 100%;
+
+            }
+
+            > .media-and-buttons {
+
+              // 縦長 ~ 4:7
+              @media (max-aspect-ratio: 4/7) {
+
+                flex-direction: column;
+
+                > * {
+
+                  width: 100%;
+
+                }
+
+                > .media {
+
+                  margin: min(1rem, calc(var(--preview-height) * .02)) 0;
+
+                }
+
+              }
+
+              // 縦長でもない 4:7 ~ 9:7
+              @media (aspect-ratio: 4/7), (min-aspect-ratio: 4/7) {
+
+                flex-direction: row;
+
+                margin-top: min(1rem, calc(var(--preview-height) * .02));
+
+                > .media {
+
+                  flex: 7;
+
+                }
+
+                > .launch-buttons {
+
+                  flex: 3;
+                  margin-left: min(1rem, 2%);
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
 
         > .unselected {
 
@@ -398,6 +544,8 @@ body {
           justify-content: center;
           align-items: center;
 
+          left: 0;
+          top: 0;
           width: 100%;
           height: 100%;
 
@@ -424,7 +572,8 @@ body {
         z-index: 64;
         overflow: hidden;
         color: white;
-        background-color: rgba(64, 64, 64, .75);
+        background-color: rgba(64, 64, 64, $background-opacity * .75);
+        transition: opacity 250ms 0s ease-in;
 
         > p {
 

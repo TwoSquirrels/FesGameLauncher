@@ -1,19 +1,23 @@
 {
     "commentTranslate.targetLanguage": "ja",
     "cSpell.words": [
+        "Konnendo",
         "appender",
         "appenders",
         "cleanlog",
+        "dimgray",
         "fesgamelauncher",
         "fontawesome",
         "globby",
         "linuxarm",
         "nodir",
         "prenotice",
+        "royalblue",
         "sourcemapped",
         "thinsp",
         "waitkey",
         "webfonts",
+        "wifi",
         "winarm"
     ],
     "discord.enabled": true
