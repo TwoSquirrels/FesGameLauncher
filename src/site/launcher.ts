@@ -180,6 +180,7 @@ const updateItems = async () => {
               "この動画は世界最高にかっこいいです。\n異論は２匹のりすに言ってください。",
             author: "かわいい鶏",
             added: 2021,
+            prenotice: true,
             movie: {
               file: "CoolestOfWorld.mp4",
             },
@@ -279,6 +280,7 @@ const updateItems = async () => {
         appendInfo("title", (div) => {
           const ellipsis = document.createElement("div");
           ellipsis.classList.add("ellipsis");
+          if (item.prenotice) ellipsis.classList.add("prenotice");
           ellipsis.innerText = item.title;
           div.appendChild(ellipsis);
         });
@@ -327,10 +329,10 @@ const updateItems = async () => {
   // previewを消す
   document
     .querySelectorAll<Element>("main > .box > .preview > .item")
-    .forEach((preview) => preview.classList.add("hide"));
+    .forEach((preview) => preview.classList.add("erase"));
   document
     .querySelectorAll<Element>("main > .box > .preview > .unselected")
-    .forEach((preview) => preview.classList.remove("hide"));
+    .forEach((preview) => preview.classList.remove("erase"));
   // 読み込み中画面を消す
   document
     .querySelectorAll<Element>("main > .box > .loading")
