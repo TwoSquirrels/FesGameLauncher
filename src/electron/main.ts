@@ -79,6 +79,43 @@ const config = (() => {
     electron.ipcMain.handle("utils.userDataPath", async (_event, ...paths: string[]) => utils.userDataPath(...paths));
     electron.ipcMain.handle("utils.checkInternet", async (_event, timeout?: number, host?: string) => await utils.checkInternet(timeout, host));
     electron.ipcMain.handle("constants.config", async (_event) => config);
+    electron.ipcMain.handle("constants.platform", async (_event) => {
+      switch (process.platform) {
+        case "darwin":
+          switch (process.arch) {
+            case "arm64":
+            case "x64":
+              return "osx64";
+            default:
+              return "";
+          }
+        case "linux":
+          switch (process.arch) {
+            case "x64":
+              return "linux64";
+            case "arm":
+              return "linuxarm";
+            case "arm64":
+              return "linuxarm64";
+            default:
+              return "";
+          }
+        case "win32":
+          switch (process.arch) {
+            case "x32":
+              return "win32";
+            case "x64":
+              return "win64";
+            case "arm":
+            case "arm64":
+              return "winarm";
+            default:
+              return "";
+          }
+        default:
+          return "";
+      }
+    });
     items.register();
 
     // Create a window

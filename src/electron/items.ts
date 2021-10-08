@@ -22,6 +22,7 @@
 
 /* imports */
 
+import * as child from "child_process";
 import * as electron from "electron";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -201,10 +202,42 @@ export function register() {
   electron.ipcMain.handle(
     "items.launch",
     async (_event, id: string, platform: string, args: string[]) => {
+      // argsは使用していません
+      const info = await utils.find(
+        utils.userDataPath(`items/games/${id}/info.json`),
+        { nodir: true }
+      );
+      if (info.length === 0) {
+        logger.error(`"items/games/${id}/info.json" does not exist.`);
+        throw new Error(`"items/games/${id}/info.json" does not exist.`);
+      }
+      const game = await fs.readJson(info[0]);
+      // launch
       logger.info(
         `Launching "${id}" as ${platform}... (args: ${JSON.stringify(args)})`
       );
-      // launch program
+      if (!game.game?.file?.[platform]) {
+        logger.error(`${id}.game.file[${platform}] does not exist.`);
+        throw new Error(`${id}.game.file[${platform}] does not exist.`);
+      }
+      const exePath = utils.userDataPath(`items/games/${id}/files/${game.game.file[platform]}`);
+      switch (platform) {
+        case "win32":
+        case "winarm":
+        case "win64":
+          child.exec(`start "" /d "${path.dirname(exePath)}" "${path.basename(exePath)}"`);
+          break;
+        case "osx":
+          // 動くのかはしらん
+          child.execFile(exePath);
+          break;
+        case "linux64":
+        case "linuxarm":
+        case "linuxarm64":
+          // 動くのかはしらん
+          child.execFile(exePath);
+          break;
+      }
     }
   );
 }

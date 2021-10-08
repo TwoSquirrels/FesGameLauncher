@@ -1,0 +1,14 @@
+﻿{
+  "title": "しまゆとシューティング",
+  "version": "1.00001",
+  "added": 2021,
+  "description": "中一の際に作ったシューティングゲームです。\n今回は高難易度モードを追加したりしてみました。",
+  "previews": ["preview.png"],
+  "game": {
+    "file": {
+      "win32": "しまゆとシューティングver.10001.exe"
+    },
+    "offline": true,
+    "difficulty": 1
+  }
+}

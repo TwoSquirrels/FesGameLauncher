@@ -37,17 +37,17 @@ electron.contextBridge.exposeInMainWorld("electron", {
   },
   constants: {
     config: electron.ipcRenderer.invoke("constants.config"),
+    platform: electron.ipcRenderer.invoke("constants.platform"),
   },
   items: {
     get: async (category: string) =>
       await electron.ipcRenderer.invoke("items.get", category),
-    launch: async (id: string, platform: string, args?: string[]) => {
+    launch: async (id: string, platform: string, args?: string[]) =>
       await electron.ipcRenderer.invoke(
         "items.launch",
         id,
         platform,
         args ?? []
-      );
-    },
+      ),
   },
 });

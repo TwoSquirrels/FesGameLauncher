@@ -19,14 +19,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 %><div class="background">
-  <video src="<%= resources %>videos/BackGround.mp4<%= cacheVer %>" webkit-playsinline playsinline muted autoplay loop></video>
+  <video src="<%= resources %>videos/BackGround.mp4<%= cacheVer %>" webkit-playsinline playsinline muted autoplay loop decoding="async"></video>
 </div>
+
 <main>
+
   <span>
     <%= site.name %>
   </span>
+
   <h2><span>遊びたいゲーム等を</span><span>選択してください</span></h2>
+
   <div class="box">
+
     <ul class="tabs">
       <li class="games"><button onclick="switchTab('games')">
           <i class="fas fa-gamepad"></i>&thinsp;ゲーム
@@ -38,9 +43,13 @@ limitations under the License.
           <i class="fas fa-splotch"></i>&thinsp;その他
         </button></li>
     </ul>
+
     <ul class="items"></ul>
+
     <div class="preview">
+
       <div class="item erase">
+
         <div class="text">
           <div class="icon"></div>
           <h2 class="title"></h2>
@@ -54,7 +63,9 @@ limitations under the License.
           <hr />
           <div class="description"></div>
         </div>
+
         <div class="media-and-buttons">
+
           <div class="media">
             <div class="content">
               <img src="" alt="プレビュー画像" decoding="async" />
@@ -64,18 +75,29 @@ limitations under the License.
             </div>
             <div class="no-content">プレビューがありません<br />準備不足が丸見えなのですわ</div>
           </div>
-          <div class="launch-buttons"></div>
+
+          <div class="launch-buttons">
+            <div class="buttons"></div>
+            <div class="prenotice">また見に来てね！</div>
+          </div>
+
         </div>
+
       </div>
+
       <div class="unselected">
         <p>上のリストから気になるものをクリック/タッチしてね</p>
       </div>
+
     </div>
+
     <div class="loading hide">
       <p>
         <i class="fas fa-spinner fa-2x fa-spin"></i><br />
         Now Loading...
       </p>
     </div>
+
   </div>
+
 </main>

@@ -9,9 +9,7 @@
   ],
   "game": {
     "file": {
-      "win32": "TheActionOfLookSerious_v2.0.exe",
-      "win64": "TheActionOfLookSerious_v2.0.exe",
-      "winarm": "TheActionOfLookSerious_v2.0.exe"
+      "win32": "TheActionOfLookSerious_v2.0.exe"
     },
     "offline": true,
     "difficulty": 2

@@ -98,7 +98,16 @@ body {
 
     &::after {
 
-      background-color: rgba($theme-color, .5);
+      content: "";
+
+      position: fixed;
+
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+
+      background-color: rgba($theme-color, .25);
 
     }
 
@@ -212,6 +221,7 @@ body {
 
         z-index: 48;
         overflow: auto;
+        scrollbar-width: thin;
         list-style-type: none;
         &.games {
           background-color: $games-color;
@@ -229,17 +239,17 @@ body {
 
             display: grid;
             grid-template-rows: 50% 50%;
-            grid-template-columns: 3em 1fr 6.5em;
+            grid-template-columns: 3em 1fr 8em;
             @media screen and (max-width: 32em) {
-              grid-template-columns: 3em 1fr 3em;
+              grid-template-columns: 3em 1fr 4em;
             }
             grid-template-areas:
               "icon title  version"
               "icon author added  ";
             &.is-game {
-              grid-template-columns: 3em 1fr 8em 6.5em;
+              grid-template-columns: 3em 1fr 8em 8em;
               @media screen and (max-width: 32em) {
-                grid-template-columns: 3em 1fr 2.5em 3em;
+                grid-template-columns: 3em 1fr 3em 4em;
               }
               grid-template-areas:
                 "icon title  difficulty version"
@@ -433,7 +443,7 @@ body {
 
               &.difficulty {
 
-                width: 6em;
+                width: 7em;
 
               }
 
@@ -506,16 +516,36 @@ body {
 
             }
 
-            > .launch-buttons {
+            > .launch-buttons > .buttons {
 
-              background-color: green;
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              gap: .5rem;
+
+              > button {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 100%;
+                height: 4em;
+                padding: 0;
+                outline: 0;
+                border: 0;
+
+                @include focus();
+                background-color: limegreen;
+
+              }
 
             }
 
           }
 
-          // 画面が横長 1:1 ~
-          @media (aspect-ratio: 1/1), (min-aspect-ratio: 1/1) {
+          // 画面が横長 8:7 ~
+          @media (aspect-ratio: 8/7), (min-aspect-ratio: 8/7) {
 
             flex-direction: row;
 
@@ -530,6 +560,7 @@ body {
               flex: 1;
 
               overflow: auto;
+              scrollbar-width: thin;
 
             }
 
@@ -558,9 +589,11 @@ body {
 
               > .launch-buttons {
 
-                width: 8em;
+                width: 12em;
+                height: 100%;
 
                 overflow: auto;
+                scrollbar-width: thin;
 
               }
 
@@ -568,12 +601,13 @@ body {
 
           }
 
-          // 横長じゃない ~ 1:1
-          @media (max-aspect-ratio: 1/1) {
+          // 横長じゃない ~ 8:7
+          @media (max-aspect-ratio: 8/7) {
 
             flex-direction: column;
 
             overflow: auto;
+            scrollbar-width: thin;
 
             > * {
 
@@ -583,8 +617,8 @@ body {
 
             > .media-and-buttons {
 
-              // 縦長 ~ 4:7
-              @media (max-aspect-ratio: 4/7) {
+              // 縦長 ~ 5:7
+              @media (max-aspect-ratio: 5/7) {
 
                 flex-direction: column;
 
@@ -602,8 +636,8 @@ body {
 
               }
 
-              // 縦長でもない 4:7 ~ 9:7
-              @media (aspect-ratio: 4/7), (min-aspect-ratio: 4/7) {
+              // 縦長でもない 5:7 ~ 8:7
+              @media (aspect-ratio: 5/7), (min-aspect-ratio: 5/7) {
 
                 flex-direction: row;
 
@@ -611,14 +645,18 @@ body {
 
                 > .media {
 
-                  flex: 7;
+                  width: 70%;
 
                 }
 
                 > .launch-buttons {
 
-                  flex: 3;
+                  width: 30%;
+                  aspect-ratio: 16 / 21;
                   margin-left: min(1rem, 2%);
+
+                  overflow: auto;
+                  scrollbar-width: thin;
 
                 }
 

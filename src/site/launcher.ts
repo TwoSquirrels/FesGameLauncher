@@ -68,6 +68,15 @@ type Other = Item & {
   };
 };
 
+type Platform =
+  | "win32"
+  | "win64"
+  | "winarm"
+  | "osx64"
+  | "linux64"
+  | "linuxarm"
+  | "linuxarm64";
+
 declare const electron: {
   utils: {
     userDataPath: (...paths: string[]) => Promise<string>;
@@ -78,13 +87,14 @@ declare const electron: {
       exhibition?: boolean;
       visibleNotOffline?: string;
     }>;
+    platform: Promise<Platform | "">;
   };
   items: {
     get: (category: string) => Promise<ItemOrError[]>;
     launch: (
       id: string,
-      platform: string,
-      arguments?: string[]
+      platform: Platform,
+      args?: string[]
     ) => Promise<void>;
   };
 };
@@ -99,6 +109,30 @@ function changeExtra(newPath: string): void {
   if (!isElectron())
     history.replaceState("", "", `${extra.top()}launcher/${newPath}`);
   extra.path = newPath;
+}
+
+/**
+ * 最適なプラットフォームを取得します。
+ * @param platform 確かめるプラットフォーム名
+ * @param supportedPlatforms 対応してるプラットフォーム名の配列
+ * @returns 対応していたら最適なプラットフォーム、していなかったら空文字列 `""`
+ */
+function getBestPlatform(
+  platform: Platform | "",
+  supportedPlatforms: (Platform | "site")[]
+): Platform | "site" | "" {
+  // ちょうどいいやつはありますか？
+  if (platform !== "" && supportedPlatforms.includes(platform)) return platform;
+  // あらないんですか。なら互換性があるやつを...
+  else if (platform.startsWith("win") && supportedPlatforms.includes("win32"))
+    return "win32";
+  // これホントに互換性あるのかな？不安になってきた
+  else if (platform === "linuxarm64" && supportedPlatforms.includes("linuxarm"))
+    return "linuxarm";
+  // これでもなければサイトだ
+  else if (supportedPlatforms.includes("site")) return "site";
+  // サイトすらないなら対応してませんね
+  else return "";
 }
 
 let items: ItemOrError[] = [];
@@ -154,8 +188,6 @@ const updateItems = async () => {
             game: {
               file: {
                 win32: "ArcherStory_v1.2.exe",
-                win64: "ArcherStory_v1.2.exe",
-                winarm: "ArcherStory_v1.2.exe",
               },
               offline: true,
               difficulty: 1,
@@ -170,11 +202,10 @@ const updateItems = async () => {
               "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
             author: "２匹のりす",
             added: 2019,
+            previews: ["thumbnail.png"],
             game: {
               file: {
                 win32: "TheActionOfLookSerious_v2.0.exe",
-                win64: "TheActionOfLookSerious_v2.0.exe",
-                winarm: "TheActionOfLookSerious_v2.0.exe",
               },
               offline: true,
               difficulty: 2,
@@ -200,6 +231,9 @@ const updateItems = async () => {
         ],
         others: [],
       }[tab];
+  // TODO: ソート
+  // シャッフル
+  items = items.sort(() => Math.random() - 0.5);
   // インターネット接続の確認
   const internet = isElectron() ? await electron.utils.checkInternet() : true;
   // itemsを更新する
@@ -242,6 +276,15 @@ const updateItems = async () => {
         // フィルター
         if (isElectron() && item.category === "games") {
           const game = (item as Game).game;
+          // プラットフォーム
+          if (
+            getBestPlatform(
+              await electron.constants.platform,
+              Object.keys(game.file) as (Platform | "site")[]
+            ) === ""
+          )
+            continue;
+          // ネット
           switch ((await electron.constants.config).visibleNotOffline) {
             case "never":
               if (!(game.offline ?? true)) continue;
@@ -314,7 +357,7 @@ const updateItems = async () => {
             (div) =>
               (div.innerHTML = `<i class="fas fa-${
                 ["laugh", "smile", "angry"][game.difficulty]
-              } fa-2x"></i><span class="wide-only">&thinsp;${
+              } fa-2x"></i><span class="wide-only">${
                 ["かんたん", "ふつう", "むずかしい"][game.difficulty]
               }</span>`)
           );
@@ -345,7 +388,9 @@ const updateItems = async () => {
   unEraseElement("main > .box > .preview > .unselected");
   // プレビューをちょっと変える
   document
-    .querySelectorAll<HTMLElement>("main > .box > .preview > .item > .text > .game")
+    .querySelectorAll<HTMLElement>(
+      "main > .box > .preview > .item > .text > .game"
+    )
     .forEach((gameOnly) =>
       tab === "games" ? unEraseElement(gameOnly) : eraseElement(gameOnly)
     );
@@ -368,9 +413,11 @@ const updatePreview = async () => {
         ? button.classList.add("selected")
         : button.classList.remove("selected")
     );
+  // プレビューをいろいろ書き換え
+  const preview = "main > .box > .preview > .item";
   // アイコン
   document
-    .querySelectorAll<Element>("main > .box > .preview > .item > .text > .icon")
+    .querySelectorAll<Element>(`${preview} > .text > .icon`)
     .forEach(async (icon) => {
       try {
         const img = document.createElement("img");
@@ -396,45 +443,33 @@ const updatePreview = async () => {
     });
   // テキスト類
   document
-    .querySelectorAll<HTMLElement>(
-      "main > .box > .preview > .item > .text > .title"
-    )
+    .querySelectorAll<HTMLElement>(`${preview} > .text > .title`)
     .forEach((title) => (title.innerText = item.title));
   document
-    .querySelectorAll<HTMLElement>(
-      "main > .box > .preview > .item > .text > .version"
-    )
+    .querySelectorAll<HTMLElement>(`${preview} > .text > .version`)
     .forEach((version) => (version.innerText = `バージョン ${item.version}`));
   document
-    .querySelectorAll<HTMLElement>(
-      "main > .box > .preview > .item > .text > .author"
-    )
+    .querySelectorAll<HTMLElement>(`${preview} > .text > .author`)
     .forEach(
       (author) => (author.innerText = `制作者: ${item.author ?? "非公開"}`)
     );
   document
-    .querySelectorAll<HTMLElement>(
-      "main > .box > .preview > .item > .text > .added"
-    )
+    .querySelectorAll<HTMLElement>(`${preview} > .text > .added`)
     .forEach((added) => (added.innerText = `${item.added}年度に公開`));
   if (item.category === "games") {
     const game = (item as Game).game;
     document
-      .querySelectorAll<HTMLElement>(
-        "main > .box > .preview > .item > .text > .game > .difficulty"
-      )
+      .querySelectorAll<HTMLElement>(`${preview} > .text > .game > .difficulty`)
       .forEach(
         (difficulty) =>
           (difficulty.innerHTML = `<i class="fas fa-${
             ["laugh", "smile", "angry"][game.difficulty]
-          } fa-lg"></i>&thinsp;${
+          } fa-lg"></i>${
             ["かんたん", "ふつう", "むずかしい"][game.difficulty]
           }`)
       );
     document
-      .querySelectorAll<HTMLElement>(
-        "main > .box > .preview > .item > .text > .game > .offline"
-      )
+      .querySelectorAll<HTMLElement>(`${preview} > .text > .game > .offline`)
       .forEach(
         (offline) =>
           (offline.innerHTML = `<span style="color: ${
@@ -445,9 +480,7 @@ const updatePreview = async () => {
       );
   }
   document
-    .querySelectorAll<HTMLElement>(
-      "main > .box > .preview > .item > .text > .description"
-    )
+    .querySelectorAll<HTMLElement>(`${preview} > .text > .description`)
     .forEach(
       (description) =>
         (description.innerHTML = decorationText(
@@ -458,12 +491,95 @@ const updatePreview = async () => {
   // メディア
   previews = item.previews ?? [];
   slidePreview();
-  // TODO: 起動ボタン
+  // 起動ボタン
+  (async () => {
+    if (item.prenotice ?? false) {
+      eraseElement(
+        `${preview} > .media-and-buttons > .launch-buttons > .buttons`
+      );
+      unEraseElement(
+        `${preview} > .media-and-buttons > .launch-buttons > .prenotice`
+      );
+    } else {
+      unEraseElement(
+        `${preview} > .media-and-buttons > .launch-buttons > .buttons`
+      );
+      eraseElement(
+        `${preview} > .media-and-buttons > .launch-buttons > .prenotice`
+      );
+      const files = new Map<Platform | "site" | "movie", string>();
+      switch (item.category) {
+        case "games":
+          const game = (item as Game).game;
+          if (isElectron()) {
+            // Electronの場合は最適なものがあるはず
+            const bestPlatform = getBestPlatform(
+              await electron.constants.platform,
+              Object.keys(game.file) as (Platform | "site")[]
+            );
+            if (bestPlatform !== "")
+              files.set(bestPlatform, game.file[bestPlatform] ?? "");
+          } else {
+            // サイトの場合はダウンロードボタンになるので全部
+            if (game.file.site) files.set("site", game.file.site);
+            for (const platform of Object.keys(game.file) as (
+              | Platform
+              | "site"
+            )[])
+              if (platform !== "site")
+                files.set(platform, game.file[platform] ?? "");
+          }
+          break;
+        case "movies":
+          files.set("movie", (item as Movie).movie.file);
+          break;
+        case "others":
+          files.set("site", (item as Other).other.site);
+          break;
+      }
+      document
+        .querySelectorAll<Element>(
+          `${preview} > .media-and-buttons > .launch-buttons > .buttons`
+        )
+        .forEach((buttons) => {
+          buttons.innerHTML = "";
+          for (const [platform, file] of files) {
+            // ボタンの追加
+            const button = document.createElement("button");
+            switch (item.category) {
+              case "games":
+                button.innerHTML = isElectron()
+                  ? 'プレイ&thinsp;<i class="fas fa-play fa-lg"></i>'
+                  : platform === "site"
+                  ? 'Webでプレイ&thinsp;<i class="fas fa-play fa-lg"></i>'
+                  : `${platform}版DL&thinsp;<i class="fas fa-download fa-lg"></i>`;
+                break;
+              case "movies":
+                button.innerHTML =
+                  '視聴&thinsp;<i class="far fa-play-circle fa-lg"></i>';
+                break;
+              case "others":
+                button.innerHTML =
+                  'ＧＯ&thinsp;<i class="fas fa-play fa-lg"></i>';
+                break;
+            }
+            button.title = file;
+            button.setAttribute(
+              "onclick",
+              `launch("${item.category}", ${JSON.stringify(
+                item.id
+              )}, ${JSON.stringify(file)}, "${platform}")`
+            );
+            buttons.appendChild(button);
+          }
+        });
+    }
+  })().catch(console.error);
   // プレビューの更新
   eraseElement("main > .box > .preview > .unselected");
-  unEraseElement("main > .box > .preview > .item");
+  unEraseElement(preview);
   onResize();
-};;
+};
 
 function switchTab(tabName: "games" | "movies" | "others"): void {
   tab = tabName;
@@ -495,7 +611,9 @@ function slidePreview(move?: number): void {
     unEraseElement(`${media} > .content`);
     eraseElement(`${media} > .no-content`);
     previewPage =
-      move === undefined ? 0 : (previewPage + move + previews.length) % previews.length;
+      move === undefined
+        ? 0
+        : (previewPage + move + previews.length) % previews.length;
     const preview = previews[previewPage];
     // 反映
     eraseElement(`${media} > .content > img`);
@@ -520,7 +638,7 @@ function slidePreview(move?: number): void {
                     )
                   : `${extra.top()}${constants.page.top}items/${
                       item.category
-                    }/${item.id}/previews/${preview}`
+                    }/${item.id}/previews/${preview}?ver=${item.version}`
               );
               unEraseElement(img);
             } catch (err) {
@@ -546,7 +664,7 @@ function slidePreview(move?: number): void {
                 )}`
               : `${extra.top()}${constants.page.top}items/${item.category}/${
                   item.id
-                }/previews/${preview}`;
+                }/previews/${preview}?ver=${item.version}`;
             unEraseElement(video);
           });
         break;
@@ -558,11 +676,37 @@ function slidePreview(move?: number): void {
   }
 }
 
+async function launch(
+  category: "games" | "movies" | "others",
+  id: string,
+  file: string,
+  platform: Platform | "site" | "movie"
+): Promise<void> {
+  if (platform === "site" || platform === "movie") {
+    // TODO: サイトと動画に対応させる
+    alert("ごめんそれまだ未対応すぐ対応させるからまってて");
+  } else if (isElectron()) {
+    // Electronは起動
+    await electron.items.launch(id, platform);
+    // 展示モードなら戻る
+    if ((await electron.constants.config).exhibition) switchTab("games");
+  } else {
+    // サイトはDL
+    const a = document.createElement("a");
+    a.href = `${extra.top()}${constants.page.top}items/games/${id}/files.zip`;
+    a.download = `${id}.zip`;
+    a.click();
+  }
+}
+
 function onResize(): void {
   maximizingAdjustment();
   document.documentElement.style.setProperty(
     "--preview-height",
-    `${document.querySelector("main > .box > .preview > .item")?.clientHeight ?? 0}px`
+    `${
+      document.querySelector("main > .box > .preview > .item")?.clientHeight ??
+      0
+    }px`
   );
 }
 
@@ -576,7 +720,7 @@ window.onload = () => {
   // 文化祭モードではないときはゲーム以外のタブの非表示を解除
   (async () => {
     if (!isElectron() || !(await electron.constants.config).exhibition)
-      unEraseElement("main > .box > .tabs > li.erase")
+      unEraseElement("main > .box > .tabs > li.erase");
   })();
 };
 
