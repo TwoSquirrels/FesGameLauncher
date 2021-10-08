@@ -532,7 +532,23 @@ function slidePreview(move?: number): void {
           });
         break;
       case "mp4":
-        // TODO: 動画再生に対応する
+        // 動画
+        document
+          .querySelectorAll<HTMLVideoElement>(`${media} > .content > video`)
+          .forEach(async (video) => {
+            video.src = isElectron()
+              ? `file:///${await electron.utils.userDataPath(
+                  "items",
+                  item.category,
+                  item.id,
+                  "previews",
+                  preview
+                )}`
+              : `${extra.top()}${constants.page.top}items/${item.category}/${
+                  item.id
+                }/previews/${preview}`;
+            unEraseElement(video);
+          });
         break;
       default:
         // 画像/動画がないとわかっているとき
