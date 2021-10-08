@@ -24,6 +24,7 @@
 
 import * as electron from "electron";
 import * as fs from "fs-extra";
+import * as path from "path";
 
 import * as utils from "./utils";
 
@@ -51,10 +52,13 @@ export function register() {
         ).map(async (info) => {
           try {
             const item = await fs.readJson(info);
-            if (Object.prototype.toString.call(item) !== "[object Object]") throw new Error(utils.lang({
-              EN: `"${category}/${item.id}/info.json" is not an Object.`,
-              JP: `"${category}/${item.id}/info.json" が Object ではありません。`,
-            }));
+            if (Object.prototype.toString.call(item) !== "[object Object]")
+              throw new Error(
+                utils.lang({
+                  EN: `"${category}/${item.id}/info.json" is not an Object.`,
+                  JP: `"${category}/${item.id}/info.json" が Object ではありません。`,
+                })
+              );
             item.id = info.split("/")[info.split("/").length - 2];
             item.category = category;
             // Confirm if format is valid
@@ -71,25 +75,52 @@ export function register() {
               missing.push({ property: "added", type: "number" });
             if (item.prenotice && typeof item.prenotice !== "boolean")
               missing.push({ property: "prenotice", type: "boolean" });
+            if (item.previews) {
+              if (!(item.previews instanceof Array))
+                missing.push({ property: "previews", type: "Array" });
+              else
+                for (let i = 0; i < item.previews.length; ++i) {
+                  if (typeof item.previews[i] !== "string")
+                    missing.push({ property: `previews[${i}]`, type: "string" });
+                  else {
+                    const extension = path.extname(item.previews[i]);
+                    if (
+                      extension !== ".png" &&
+                      extension !== ".jpg" &&
+                      extension !== ".jpeg" &&
+                      extension !== ".mp4"
+                    )
+                      missing.push({
+                        property: `previews[${i}]`,
+                        type: ".png | .jpg | .jpeg | .mp4",
+                      });
+                  }
+                }
+            }
             switch (category) {
               case "games":
-                if (Object.prototype.toString.call(item.game) !== "[object Object]") {
+                if (
+                  Object.prototype.toString.call(item.game) !==
+                  "[object Object]"
+                ) {
                   missing.push({ property: "game", type: "Object" });
                   break;
                 }
-                if (Object.prototype.toString.call(item.game.file) !== "[object Object]")
+                if (
+                  Object.prototype.toString.call(item.game.file) !==
+                  "[object Object]"
+                )
                   missing.push({
                     property: "game.file",
                     type: "Object",
                   });
                 else
-                  for (const architecture in item.game.file) {
+                  for (const architecture in item.game.file)
                     if (typeof item.game.file[architecture] !== "string")
                       missing.push({
                         property: `game.file.${architecture}`,
                         type: "string",
                       });
-                  }
                 if (item.game.offline && typeof item.game.offline !== "boolean")
                   missing.push({ property: "game.offline", type: "boolean" });
                 if (
@@ -103,7 +134,9 @@ export function register() {
                   missing.push({ property: "game.offline", type: "boolean" });
                 break;
               case "movies":
-                if (Object.prototype.toString.call(item) !== "[object Object]") {
+                if (
+                  Object.prototype.toString.call(item) !== "[object Object]"
+                ) {
                   missing.push({ property: "movie", type: "Object" });
                   break;
                 }
@@ -111,7 +144,9 @@ export function register() {
                   missing.push({ property: "movie.file", type: "string" });
                 break;
               case "others":
-                if (Object.prototype.toString.call(item) !== "[object Object]") {
+                if (
+                  Object.prototype.toString.call(item) !== "[object Object]"
+                ) {
                   missing.push({ property: "other", type: "Object" });
                   break;
                 }
@@ -128,10 +163,12 @@ export function register() {
                   })
                 )
               );
-              throw new Error(utils.lang({
-                EN: `"${category}/${item.id}/info.json" format is not valid.`,
-                JP: `"${category}/${item.id}/info.json" のフォーマットが正しくありません。`,
-              }));
+              throw new Error(
+                utils.lang({
+                  EN: `"${category}/${item.id}/info.json" format is not valid.`,
+                  JP: `"${category}/${item.id}/info.json" のフォーマットが正しくありません。`,
+                })
+              );
             }
             // return data
             logger.info(

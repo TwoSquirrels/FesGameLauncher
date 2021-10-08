@@ -4,6 +4,9 @@
   "description": "しょぼ○のアクションのパクリゲームです。\n１面は簡単ですが、２面からはトラップが大量にあります。",
   "author": "２匹のりす",
   "added": 2019,
+  "previews": [
+    "thumbnail.png"
+  ],
   "game": {
     "file": {
       "win32": "TheActionOfLookSerious_v2.0.exe",

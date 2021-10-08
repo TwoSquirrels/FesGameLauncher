@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-$theme-color: #808080;
+$theme-color: #A0A0A0;
 $background-opacity: .75;
 $box-color: rgba(240, 230, 140, $background-opacity);
 $games-color: rgba(144, 238, 144, $background-opacity);
@@ -403,6 +403,12 @@ body {
 
               display: inline-block;
 
+              &.difficulty {
+
+                width: 6em;
+
+              }
+
             }
 
           }
@@ -415,7 +421,60 @@ body {
 
               aspect-ratio: 16 / 9;
 
-              background-color: purple;
+              background-color: $theme-color;
+
+              > * {
+
+                width: 100%;
+                height: 100%;
+
+              }
+
+              > .content {
+
+                position: relative;
+
+                > img {
+
+                  width: 100%;
+                  height: 100%;
+
+                  object-fit: contain;
+
+                }
+
+                > button {
+
+                  position: absolute;
+
+                  bottom: 1em;
+                  &.back {
+                    left: 1em;
+                  }
+                  &.next {
+                    right: 1em;
+                  }
+                  padding: 0;
+                  outline: 0;
+                  border: 0;
+
+                  filter: drop-shadow(0 0 .125em white);
+
+                }
+
+              }
+
+              > .no-content {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                font-size: 1.5em;
+
+                overflow: hidden;
+
+              }
 
             }
 
@@ -460,6 +519,12 @@ body {
 
                 width: calc(var(--preview-height) * 16 / 9);
                 margin: 0 min(1rem, 2%);
+
+                > .no-content {
+
+                  font-size: 2em;
+
+                }
 
               }
 

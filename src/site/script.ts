@@ -105,7 +105,7 @@ function unEraseElement(elements: string | HTMLElement | HTMLElement[]): void {
  * - `<bold>` より後ろは太字になり、 `<fine>` で戻せます。
  */
 function decorationText(text: string): string {
-  return text.replace(/</g, "&lt;");
+  return text.replace(/</g, "&lt;").replace(/\n/, "<br />");
 }
 
 // initialization

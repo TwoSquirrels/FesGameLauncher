@@ -53,10 +53,13 @@ limitations under the License.
         </div>
         <div class="media-and-buttons">
           <div class="media">
-            <div class="content"></div>
-            <p class="no-content">プレビューがありません</p>
-            <button class="back" onclick="backPreview()"><i class="fas fa-chevron-circle-left"></i></button>
-            <button class="next" onclick="nextPreview()"><i class="fas fa-chevron-circle-right"></i></button>
+            <div class="content">
+              <img alt="プレビュー画像" decoding="async" />
+              <%#video></video%>
+              <button class="back" onclick="slidePreview(-1)"><i class="fas fa-chevron-circle-left fa-2x"></i></button>
+              <button class="next" onclick="slidePreview(1)"><i class="fas fa-chevron-circle-right fa-2x"></i></button>
+            </div>
+            <div class="no-content">プレビューがありません<br />準備不足が丸見えなのですわ</div>
           </div>
           <div class="launch-buttons"></div>
         </div>

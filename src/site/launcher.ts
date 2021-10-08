@@ -38,6 +38,7 @@ type Item = ItemOrError & {
   author?: string;
   added: number;
   prenotice?: boolean;
+  previews?: string[];
   error?: undefined;
 };
 type Game = Item & {
@@ -114,6 +115,8 @@ let tab: "games" | "movies" | "others" = (() => {
   }
 })();
 let itemId: string | null = extra.path.split("/")[1] ?? null;
+let previews: string[] = [];
+let previewPage: number = 0;
 
 const updateItems = async () => {
   // 読み込み中ならキャンセル
@@ -256,27 +259,15 @@ const updateItems = async () => {
         // 画像があればその画像をアイコンに、なければゲームパッドを
         try {
           const icon = document.createElement("img");
-          console.log(
-            isElectron()
-              ? await electron.utils.userDataPath(
-                  "items",
-                  tab,
-                  item.id,
-                  "icon.png"
-                )
-              : `${extra.top()}${constants.page.top}items/${tab}/${
-                  item.id
-                }/icon.png`
-          );
           icon.src = await resolveImage(
             isElectron()
               ? await electron.utils.userDataPath(
                   "items",
-                  tab,
+                  item.category,
                   item.id,
                   "icon.png"
                 )
-              : `${extra.top()}${constants.page.top}items/${tab}/${
+              : `${extra.top()}${constants.page.top}items/${item.category}/${
                   item.id
                 }/icon.png`
           );
@@ -387,11 +378,11 @@ const updatePreview = async () => {
           isElectron()
             ? await electron.utils.userDataPath(
                 "items",
-                tab,
+                item.category,
                 item.id,
                 "icon.png"
               )
-            : `${extra.top()}${constants.page.top}items/${tab}/${
+            : `${extra.top()}${constants.page.top}items/${item.category}/${
                 item.id
               }/icon.png`
         );
@@ -437,7 +428,7 @@ const updatePreview = async () => {
           (difficulty.innerHTML = `<i class="fas fa-${
             ["laugh", "smile", "angry"][game.difficulty]
           } fa-lg"></i>&thinsp;${
-            ["かんたん　", "ふつう　　", "むずかしい"][game.difficulty]
+            ["かんたん", "ふつう", "むずかしい"][game.difficulty]
           }`)
       );
     document
@@ -464,7 +455,9 @@ const updatePreview = async () => {
             "作者は相当この作品に自信があるようで、説明は用意されていません！？"
         ))
     );
-  // TODO: メディア
+  // メディア
+  previews = item.previews ?? [];
+  slidePreview();
   // TODO: 起動ボタン
   // プレビューの更新
   eraseElement("main > .box > .preview > .unselected");
@@ -482,6 +475,71 @@ function switchItem(itemName: string): void {
   itemId = itemName;
   changeExtra(`${tab}/${itemId}`);
   updatePreview();
+}
+
+/**
+ * プレビューのページをスライド
+ * @param move 相対的に何ページスライドするか(指定しなかった場合0にもどる)
+ */
+function slidePreview(move?: number): void {
+  const itemOrError = items.find((item) => item.id === itemId);
+  if (!itemOrError || itemOrError.error) return;
+  const item = itemOrError as Item;
+  const media = "main > .box > .preview > .item > .media-and-buttons > .media";
+  if (previews.length === 0 || !previews.some((preview) => preview !== "")) {
+    // プレビューがないとき
+    eraseElement(`${media} > .content`);
+    unEraseElement(`${media} > .no-content`);
+  } else {
+    // プレビューがあるとき
+    unEraseElement(`${media} > .content`);
+    eraseElement(`${media} > .no-content`);
+    previewPage =
+      move === undefined ? 0 : (previewPage + move + previews.length) % previews.length;
+    const preview = previews[previewPage];
+    // 反映
+    eraseElement(`${media} > .content > img`);
+    eraseElement(`${media} > .content > video`);
+    switch ((preview.match(/[^.]+$/) ?? [""])[0]) {
+      case "png":
+      case "jpg":
+      case "jpeg":
+        // 画像
+        document
+          .querySelectorAll<HTMLImageElement>(`${media} > .content > img`)
+          .forEach(async (img) => {
+            try {
+              img.src = await resolveImage(
+                isElectron()
+                  ? await electron.utils.userDataPath(
+                      "items",
+                      item.category,
+                      item.id,
+                      "previews",
+                      preview
+                    )
+                  : `${extra.top()}${constants.page.top}items/${
+                      item.category
+                    }/${item.id}/previews/${preview}`
+              );
+              unEraseElement(img);
+            } catch (err) {
+              console.error("The preview image does not exist.");
+              console.error(err);
+              previews[previewPage] = "";
+              slidePreview(move ?? 1);
+            }
+          });
+        break;
+      case "mp4":
+        // TODO: 動画再生に対応する
+        break;
+      default:
+        // 画像/動画がないとわかっているとき
+        slidePreview(move ?? 1);
+        break;
+    }
+  }
 }
 
 function onResize(): void {
