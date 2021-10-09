@@ -154,106 +154,101 @@ tasks.set("BUILD", async (logger) => {
       logger.info("Updating Libraries...");
       try {
         // 新しいライブラリの追加と古いライブラリの除去を同時にする
-        await Promise.all(
-          ([] as Promise<void>[]).concat(
-            // remove old libraries
-            (
-              await find("build/libs/*")
-            ).map(async (libDir) => {
-              if (
-                config.libs.some(
-                  (lib: any) => libDir.replace(/build\/libs\//, "") === lib.name
-                )
+        await Promise.all([
+          // remove old libraries
+          ...(
+            await find("build/libs/*")
+          ).map(async (libDir) => {
+            if (
+              config.libs.some(
+                (lib: any) => libDir.replace(/build\/libs\//, "") === lib.name
               )
+            )
+              return;
+            await fs.remove(libDir);
+            logger.info(`Removed "${libDir}".`);
+          }),
+          // copy new libraries
+          ...config.libs.map((lib: any) =>
+            (async () => {
+              if (await fs.pathExists(`build/libs/${lib.name}`)) {
+                logger.info(`"${lib.name}" already exists.`);
                 return;
-              await fs.remove(libDir);
-              logger.info(`Removed "${libDir}".`);
-            }),
-            // copy new libraries
-            config.libs.map((lib: any) =>
-              (async () => {
-                if (await fs.pathExists(`build/libs/${lib.name}`))
-                  logger.info(`"${lib.name}" already exists.`);
-                else {
-                  logger.info(`Copying "${lib.name}"...`);
-                  try {
-                    for (const item of lib.requires) {
-                      switch (typeof item) {
-                        // ファイル/ディレクトリをそのまま
-                        case "string":
-                          for (const file of await find(
-                            `libs/${lib.name}/${item}`
-                          ))
-                            await fs.copy(file, `build/${file}`);
-                          logger.debug(`Copied "libs/${lib.name}/${item}".`);
+              }
+              logger.info(`Copying "${lib.name}"...`);
+              try {
+                for (const item of lib.requires) {
+                  switch (typeof item) {
+                    // ファイル/ディレクトリをそのまま
+                    case "string":
+                      for (const file of await find(`libs/${lib.name}/${item}`))
+                        await fs.copy(file, `build/${file}`);
+                      logger.debug(`Copied "libs/${lib.name}/${item}".`);
+                      break;
+                    // ファイルを結合/圧縮
+                    case "object":
+                      // concat
+                      let str: string = "";
+                      for (const file of item.files)
+                        for (const f of await find(`libs/${lib.name}/${file}`, {
+                          nodir: true,
+                        }))
+                          str +=
+                            (str === "" ? "" : "\n") +
+                            (await fs.promises.readFile(f, "utf-8"));
+                      await fs.outputFile(
+                        `build/libs/${lib.name}/${item.name}`,
+                        str,
+                        "utf-8"
+                      );
+                      logger.debug(
+                        `Concatenated ${JSON.stringify(
+                          item.files.map(
+                            (file: string) => `libs/${lib.name}/${file}`
+                          )
+                        )} to "build/libs/${lib.name}/${item.name}".`
+                      );
+                      // minify
+                      switch (item.minify) {
+                        case "css":
+                          await exec(
+                            logger,
+                            `npx sass --style=compressed --no-source-map build/libs/${lib.name}/${item.name}:build/libs/${lib.name}/${item.name}`
+                          );
+                          logger.debug(
+                            `Minified "build/libs/${lib.name}/${item.name}" with sass.`
+                          );
                           break;
-                        // ファイルを結合/圧縮
-                        case "object":
-                          // concat
-                          let str: string = "";
-                          for (const file of item.files)
-                            for (const f of await find(
-                              `libs/${lib.name}/${file}`,
-                              { nodir: true }
-                            ))
-                              str +=
-                                (str === "" ? "" : "\n") +
-                                (await fs.promises.readFile(f, "utf-8"));
-                          await fs.writeFile(
+                        case "js":
+                          // minify js
+                          await fs.outputFile(
                             `build/libs/${lib.name}/${item.name}`,
-                            str,
+                            (
+                              await terser.minify(
+                                await fs.promises.readFile(
+                                  `build/libs/${lib.name}/${item.name}`,
+                                  "utf-8"
+                                )
+                              )
+                            ).code,
                             "utf-8"
                           );
                           logger.debug(
-                            `Concatenated ${JSON.stringify(
-                              item.files.map(
-                                (file: string) => `libs/${lib.name}/${file}`
-                              )
-                            )} to "build/libs/${lib.name}/${item.name}".`
+                            `Minified "build/libs/${lib.name}/${item.name}" with terser.`
                           );
-                          // minify
-                          switch (item.minify) {
-                            case "css":
-                              await exec(
-                                logger,
-                                `npx sass --style=compressed --no-source-map build/libs/${lib.name}/${item.name}:build/libs/${lib.name}/${item.name}`
-                              );
-                              logger.debug(
-                                `Minified "build/libs/${lib.name}/${item.name}" with sass.`
-                              );
-                              break;
-                            case "js":
-                              // minify js
-                              await fs.writeFile(
-                                `build/libs/${lib.name}/${item.name}`,
-                                (
-                                  await terser.minify(
-                                    await fs.promises.readFile(
-                                      `build/libs/${lib.name}/${item.name}`,
-                                      "utf-8"
-                                    )
-                                  )
-                                ).code,
-                                "utf-8"
-                              );
-                              logger.debug(
-                                `Minified "build/libs/${lib.name}/${item.name}" with terser.`
-                              );
-                              break;
-                          }
                           break;
                       }
-                    }
-                  } catch (err) {
-                    logger.error(`Failed to copy "${lib.name}".`);
-                    throw new Error();
+                      break;
                   }
-                  logger.info(`Completed copying "${lib.name}"!`);
                 }
-              })()
-            )
-          )
-        );
+              } catch (err) {
+                logger.error(`Failed to copy "${lib.name}".`);
+                throw new Error();
+              }
+              logger.info(`Completed copying "${lib.name}"!`);
+            })()
+          ),
+        ]);
       } catch (err) {
         logger.error("Failed to update libraries.");
         throw new Error();
@@ -267,32 +262,30 @@ tasks.set("BUILD", async (logger) => {
 
       logger.info("Copying resources...");
       try {
-        await Promise.all(
-          ([] as Promise<void>[]).concat(
-            // site
-            (
-              await find("resources/site/**/*", { nodir: true })
-            ).map(async (resource) => {
-              // コピー！
-              await fs.copy(
-                resource,
-                resource.replace(/resources\/site/, `build/site/resources`)
-              );
-              logger.debug(`Copied "${resource}".`);
-            }),
-            // electron
-            (
-              await find("resources/electron/**/*", { nodir: true })
-            ).map(async (resource) => {
-              // コピー！
-              await fs.copy(
-                resource,
-                resource.replace(/resources\/electron/, "build/electron")
-              );
-              logger.debug(`Copied "${resource}".`);
-            })
-          )
-        );
+        await Promise.all([
+          // site
+          ...(
+            await find("resources/site/**/*", { nodir: true })
+          ).map(async (resource) => {
+            // コピー！
+            await fs.copy(
+              resource,
+              resource.replace(/resources\/site/, `build/site/resources`)
+            );
+            logger.debug(`Copied "${resource}".`);
+          }),
+          // electron
+          ...(
+            await find("resources/electron/**/*", { nodir: true })
+          ).map(async (resource) => {
+            // コピー！
+            await fs.copy(
+              resource,
+              resource.replace(/resources\/electron/, "build/electron")
+            );
+            logger.debug(`Copied "${resource}".`);
+          }),
+        ]);
       } catch (err) {
         logger.error("Failed to copy resources.");
         throw new Error();
@@ -309,34 +302,32 @@ tasks.set("BUILD", async (logger) => {
         const options: string =
           '--target "ESNEXT" --allowJs --declaration --declarationMap --sourceMap --strict --moduleResolution "node" --allowSyntheticDefaultImports';
         // siteディレクトリとelectronディレクトリを同時にコンパイル
-        await Promise.all(
-          ([] as Promise<void>[]).concat(
-            // site
-            (
-              await find("src/site/**/*.{ts,js}", { nodir: true })
-            ).map(async (tsFile) => {
-              await exec(
-                logger,
-                `npx tsc ${options} --outDir "./build/site/resources/js/${path.dirname(
-                  tsFile.replace(/src\/site/, "")
-                )}" "./${tsFile}" --module "umd"`
-              );
-              logger.debug(`Compiled "${tsFile}".`);
-            }),
-            // electron
-            (
-              await find("src/electron/**/*.{ts,js}", { nodir: true })
-            ).map(async (tsFile) => {
-              await exec(
-                logger,
-                `npx tsc ${options} --outDir "./build/electron/${path.dirname(
-                  tsFile.replace(/src\/electron/, "")
-                )}" "./${tsFile}" --module "commonjs"`
-              );
-              logger.debug(`Compiled "${tsFile}".`);
-            })
-          )
-        );
+        await Promise.all([
+          // site
+          ...(
+            await find("src/site/**/*.{ts,js}", { nodir: true })
+          ).map(async (tsFile) => {
+            await exec(
+              logger,
+              `npx tsc ${options} --outDir "./build/site/resources/js/${path.dirname(
+                tsFile.replace(/src\/site/, "")
+              )}" "./${tsFile}" --module "umd"`
+            );
+            logger.debug(`Compiled "${tsFile}".`);
+          }),
+          // electron
+          ...(
+            await find("src/electron/**/*.{ts,js}", { nodir: true })
+          ).map(async (tsFile) => {
+            await exec(
+              logger,
+              `npx tsc ${options} --outDir "./build/electron/${path.dirname(
+                tsFile.replace(/src\/electron/, "")
+              )}" "./${tsFile}" --module "commonjs"`
+            );
+            logger.debug(`Compiled "${tsFile}".`);
+          }),
+        ]);
       } catch (err) {
         logger.error("Failed to compile TypeScript.");
         throw new Error();
@@ -381,9 +372,11 @@ tasks.set("BUILD", async (logger) => {
           // ページのパスを取得
           page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
           // ページの独自データを取得
-          page.data = (await find("tasks/build/ejsData.{js,ts}")).length ? page.data = require("./tasks/build/ejsData")(page) : null;
+          page.data = (await find("tasks/build/ejsData.{js,ts}")).length
+            ? (page.data = require("./tasks/build/ejsData")(page))
+            : null;
           // レンダリングしたEJSをHTMLファイルに書き込み
-          await fs.promises.writeFile(
+          await fs.outputFile(
             `build/site/${page.path}.html`,
             // EJSファイルにプロパティを渡しレンダリング
             await renderEJSFile("src/site/template.ejs", {
@@ -452,8 +445,10 @@ tasks.set("BUILD", async (logger) => {
 tasks.set("CLEAN", async (logger) => {
   logger.info('Cleaning "build/site" and "build/electron" directory...');
   try {
-    await fs.emptyDir("build/site");
-    await fs.emptyDir("build/electron");
+    await Promise.all([
+      fs.emptyDir("build/site"),
+      fs.emptyDir("build/electron"),
+    ]);
   } catch (err) {
     logger.error(err);
     logger.error("Failed to clean directories.");
@@ -524,6 +519,137 @@ tasks.set("SERVER", async (logger) => {
   await waitkey();
   server!.close();
   logger.info("Stopped the server!");
+});
+
+// パッケージング
+tasks.set("PACKAGE", async (logger) => {
+  logger.info("Packaging a Electron app...");
+  try {
+    // Cleaning
+    logger.info('Cleaning "build/package" and "dist/electron"...');
+    await Promise.all([
+      fs.emptyDir("build/package"),
+      fs.emptyDir("dist/electron"),
+    ]);
+    logger.info("Completed cleaning!");
+
+    const files = {
+      css: Array<string>(),
+      js: Array<string>(),
+      others: Array<string>(),
+    };
+
+    // Selecting
+    logger.info("Carefully selecting files to put in the package...");
+    for (const file of await find("build/electron/**/*", {
+      nodir: true,
+      follow: true,
+    })) {
+      const pkPath = file.replace(/build\/electron\//, "");
+      // contain libs?
+      if (pkPath.split("/").includes("libs")) {
+        files.others.push(pkPath);
+        continue;
+      }
+      switch (path.extname(pkPath)) {
+        case ".css":
+          files.css.push(pkPath);
+          break;
+        case ".js":
+          files.js.push(pkPath);
+          break;
+        case ".map":
+        case ".ts":
+          break;
+        default:
+          files.others.push(pkPath);
+          break;
+      }
+    }
+    logger.info("Completed selecting!");
+    logger.info(`Files: ${JSON.stringify(files)}`);
+
+    // Processing
+    logger.info("Processing files to put in the package...");
+    await Promise.all([
+      // minify css with sass
+      ...files.css.map(async (css) => {
+        try {
+          await exec(
+            logger,
+            `npx sass --style=compressed --no-source-map build/electron/${css}:build/package/${css}`
+          );
+        } catch (err) {
+          logger.error(err);
+          logger.error(`Failed to minify "${css}" with sass.`);
+          throw new Error();
+        }
+        logger.info(`Completed minifying "${css}" with sass!`);
+      }),
+      // minify js with terser
+      ...files.js.map(async (js) => {
+        try {
+          await fs.outputFile(
+            `build/package/${js}`,
+            (
+              await terser.minify(
+                await fs.promises.readFile(`build/electron/${js}`, "utf-8")
+              )
+            ).code,
+            "utf-8"
+          );
+        } catch (err) {
+          logger.error(err);
+          logger.error(`Failed to minify "${js}" with terser.`);
+          throw new Error();
+        }
+        logger.info(`Completed minifying "${js}" with terser!`);
+      }),
+      // copy others as it is
+      ...files.others.map(async (other) => {
+        try {
+          await fs.copy(`build/electron/${other}`, `build/package/${other}`);
+        } catch (err) {
+          logger.error(err);
+          logger.error(`Failed to copy "${other}".`);
+          throw new Error();
+        }
+        logger.info(`Completed copying "${other}"!`);
+      }),
+    ]);
+    logger.info("Completed Processing!");
+
+    // Electron Builder
+    logger.info("Started to packaging the electron app...");
+    await exec(logger, "npx electron-builder");
+    logger.info("Finished packaging the electron app!");
+
+    // UserData
+    logger.info("Started to copying UserData...");
+    try {
+      await Promise.all(
+        (
+          await find("dist/electron/*/*/*.exe", { nodir: true })
+        ).map(async (exe) => {
+          for (const userData of await find("UserData/*")) {
+            if (userData === "UserData/log.txt") continue;
+            await fs.copy(userData, `${path.dirname(exe)}${userData.replace(/UserData/, "")}`);
+          }
+          logger.debug(`Copied UserData to "${path.dirname(exe)}".`);
+        })
+      );
+    } catch (err) {
+      logger.error(err);
+      logger.error("Failed to copy UserData.");
+      throw new Error();
+    }
+    logger.info("Finished copying UserData!");
+  } catch (err) {
+    logger.error(err);
+    logger.error("Failed to pack the app.");
+    throw new Error();
+  }
+  logger.info("Completed packaging!");
 });
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -43,7 +43,7 @@ export const find = util.promisify(glob);
 export const userDataPath = (...paths: string[]) =>
   path.join(
     electron.app.isPackaged
-      ? electron.app.getPath("exe")
+      ? path.dirname(electron.app.getPath("exe"))
       : path.resolve("UserData"),
     ...paths
   );
