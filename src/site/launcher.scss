@@ -20,11 +20,34 @@
  * limitations under the License.
  */
 
-$theme-color: #FFFFFF;
-$box-color: khaki;
-$games-color: lightgreen;
-$movies-color: aquamarine;
-$others-color: plum;
+$theme-color: #C0C0C0;
+$background-opacity: .75;
+$box-color: rgba(240, 230, 140, $background-opacity);
+$games-color: rgba(144, 238, 144, $background-opacity);
+$movies-color: rgba(127, 255, 212, $background-opacity);
+$others-color: rgba(221, 160, 221, $background-opacity);
+$shadow-radius: .5rem;
+$shadow-color: rgba(64, 64, 64, $background-opacity);
+
+@mixin focus($color: rgba(64, 64, 64, $background-opacity * .25)) {
+  &:focus {
+    background-color: $color;
+  }
+  &.js-focus-visible,
+  &:focus:not(.focus-visible) {
+    background-color: transparent;
+  }
+  @media (hover: hover) {
+    &:hover {
+      background-color: $color;
+    }
+  }
+  @media (hover: none) {
+    &:active {
+      background-color: $color;
+    }
+  }
+}
 
 body {
 
@@ -36,6 +59,59 @@ body {
   height: var(--height);
 
   background-color: $theme-color;
+
+  hr {
+
+    border-top: 1px dashed gray;
+    border-style: dashed;
+
+  }
+
+  .prenotice::before {
+
+    content: "[公開予定！] ";
+
+    color: royalblue;
+    font-weight: bolder;
+
+  }
+
+  // 背景
+  > .background {
+
+    position: fixed;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: -1;
+
+    > video {
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      filter: blur(4px);
+
+    }
+
+    &::after {
+
+      content: "";
+
+      position: fixed;
+
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+
+      background-color: rgba($theme-color, .25);
+
+    }
+
+  }
 
   main {
 
@@ -66,21 +142,40 @@ body {
       margin: min(1rem, 2%);
 
       overflow: hidden;
-      background-color: $box-color;
+      box-shadow: 0 0 $shadow-radius 0 $shadow-color;
+
+      &::before {
+
+        content: "";
+
+        position: absolute;
+        display: block;
+
+        top: calc(50% + 1em);
+        width: 100%;
+        height: calc(50% - 1em);
+
+        background-color: $box-color;
+
+      }
 
       > .tabs {
 
         display: flex;
         flex-direction: row;
 
-        flex: 0 0 32px;
+        flex: 0 0 2em;
         margin: 0;
         padding: 0;
 
+        z-index: 32;
         overflow-x: auto;
         list-style-type: none;
 
         > li {
+
+          position: relative;
+          display: block;
 
           flex: 1;
           min-width: 4em;
@@ -94,12 +189,23 @@ body {
           &.others {
             background-color: $others-color;
           }
+          &:not(.selected) {
+            box-shadow: inset 0 -#{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} $shadow-color;
+          }
+          &.selected {
+            z-index: 40;
+            box-shadow: 0 0 $shadow-radius 0 $shadow-color;
+          }
 
           > button {
 
             width: 100%;
             height: 100%;
             padding: 0;
+
+            outline: 0;
+            border: 0;
+            @include focus();
 
           }
 
@@ -113,7 +219,9 @@ body {
         margin: 0;
         padding: min(1rem, 2%);
 
+        z-index: 48;
         overflow: auto;
+        scrollbar-width: thin;
         list-style-type: none;
         &.games {
           background-color: $games-color;
@@ -131,17 +239,17 @@ body {
 
             display: grid;
             grid-template-rows: 50% 50%;
-            grid-template-columns: 3em 1fr 6.5em;
+            grid-template-columns: 3em 1fr 8em;
             @media screen and (max-width: 32em) {
-              grid-template-columns: 3em 1fr 3em;
+              grid-template-columns: 3em 1fr 4em;
             }
             grid-template-areas:
               "icon title  version"
               "icon author added  ";
             &.is-game {
-              grid-template-columns: 3em 1fr 8em 6.5em;
+              grid-template-columns: 3em 1fr 8em 8em;
               @media screen and (max-width: 32em) {
-                grid-template-columns: 3em 1fr 2.5em 3em;
+                grid-template-columns: 3em 1fr 3em 4em;
               }
               grid-template-areas:
                 "icon title  difficulty version"
@@ -154,6 +262,14 @@ body {
 
             text-align: left;
             overflow: hidden;
+            outline: 0;
+            border: 0;
+            &:not(.selected) {
+              @include focus();
+            }
+            &.selected {
+              background-color: rgba(0, 0, 0, $background-opacity * .25);
+            }
 
             > * {
 
@@ -162,23 +278,6 @@ body {
 
               overflow: hidden;
 
-              > .ellipsis {
-
-                width: 100%;
-                height: 100%;
-
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-
-              }
-
-            }
-
-            @media screen and (max-width: 32em) {
-              .wide-only {
-                display: none;
-              }
             }
 
             > .icon {
@@ -212,21 +311,6 @@ body {
 
               grid-area: difficulty;
               height: 100%;
-
-              > span {
-
-                filter: drop-shadow(0 0 .125em white);
-                &.easy {
-                  color: dodgerblue;
-                }
-                &.normal {
-                  color: darkorange;
-                }
-                &.hard {
-                  color: orangered;
-                }
-
-              }
 
             }
 
@@ -269,7 +353,7 @@ body {
 
             text-align: left;
             overflow: hidden;
-            background-color: lightcoral;
+            background-color: rgba(240, 128, 128, $background-opacity);
 
             > * {
 
@@ -307,9 +391,282 @@ body {
         position: relative;
 
         flex: 1;
-        margin: 0;
+        padding: min(1rem, 2%);
 
+        z-index: 16;
+        box-shadow: inset 0 #{$shadow-radius} #{$shadow-radius} -#{$shadow-radius} $shadow-color;
         overflow: hidden;
+
+        > .item {
+
+          display: flex;
+
+          width: 100%;
+          height: 100%;
+
+          > .text {
+
+            text-align: left;
+
+            > .icon {
+
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              float: left;
+              width: 2em;
+              height: 2em;
+              margin: .25em;
+
+              > img {
+
+                width: 100%;
+                height: 100%;
+
+                object-fit: contain;
+
+              }
+
+            }
+
+            > .title {
+
+              margin: 0 0 .5em;
+
+            }
+
+            > span,
+            > .game > span {
+
+              display: inline-block;
+
+              &.difficulty {
+
+                width: 7em;
+
+              }
+
+            }
+
+          }
+
+          > .media-and-buttons {
+
+            display: flex;
+
+            > .media {
+
+              aspect-ratio: 16 / 9;
+
+              background-color: $theme-color;
+
+              > * {
+
+                width: 100%;
+                height: 100%;
+
+              }
+
+              > .content {
+
+                position: relative;
+
+                > img, video {
+
+                  width: 100%;
+                  height: 100%;
+
+                  object-fit: contain;
+
+                }
+
+                > button {
+
+                  position: absolute;
+
+                  bottom: 1em;
+                  &.back {
+                    left: 1em;
+                  }
+                  &.next {
+                    right: 1em;
+                  }
+                  padding: 0;
+                  outline: 0;
+                  border: 0;
+
+                  filter: drop-shadow(0 0 .125em white);
+
+                }
+
+              }
+
+              > .no-content {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                font-size: 1.5em;
+
+                overflow: hidden;
+
+              }
+
+            }
+
+            > .launch-buttons > .buttons {
+
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              gap: .5rem;
+
+              > button {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 100%;
+                height: 4em;
+                padding: 0;
+                outline: 0;
+                border: 0;
+
+                @include focus();
+                background-color: limegreen;
+
+              }
+
+            }
+
+          }
+
+          // 画面が横長 8:7 ~
+          @media (aspect-ratio: 8/7), (min-aspect-ratio: 8/7) {
+
+            flex-direction: row;
+
+            > * {
+
+              height: 100%;
+
+            }
+
+            > .text {
+
+              flex: 1;
+
+              overflow: auto;
+              scrollbar-width: thin;
+
+            }
+
+            > .media-and-buttons {
+
+              flex-direction: row;
+
+              > * {
+
+                height: 100%;
+
+              }
+
+              > .media {
+
+                width: calc(var(--preview-height) * 16 / 9);
+                margin: 0 min(1rem, 2%);
+
+                > .no-content {
+
+                  font-size: 2em;
+
+                }
+
+              }
+
+              > .launch-buttons {
+
+                width: 12em;
+                height: 100%;
+
+                overflow: auto;
+                scrollbar-width: thin;
+
+              }
+
+            }
+
+          }
+
+          // 横長じゃない ~ 8:7
+          @media (max-aspect-ratio: 8/7) {
+
+            flex-direction: column;
+
+            overflow: auto;
+            scrollbar-width: thin;
+
+            > * {
+
+              width: 100%;
+
+            }
+
+            > .media-and-buttons {
+
+              // 縦長 ~ 5:7
+              @media (max-aspect-ratio: 5/7) {
+
+                flex-direction: column;
+
+                > * {
+
+                  width: 100%;
+
+                }
+
+                > .media {
+
+                  margin: min(1rem, calc(var(--preview-height) * .02)) 0;
+
+                }
+
+              }
+
+              // 縦長でもない 5:7 ~ 8:7
+              @media (aspect-ratio: 5/7), (min-aspect-ratio: 5/7) {
+
+                flex-direction: row;
+
+                margin-top: min(1rem, calc(var(--preview-height) * .02));
+
+                > .media {
+
+                  width: 70%;
+
+                }
+
+                > .launch-buttons {
+
+                  width: 30%;
+                  aspect-ratio: 16 / 21;
+                  margin-left: min(1rem, 2%);
+
+                  overflow: auto;
+                  scrollbar-width: thin;
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
 
         > .unselected {
 
@@ -318,6 +675,8 @@ body {
           justify-content: center;
           align-items: center;
 
+          left: 0;
+          top: 0;
           width: 100%;
           height: 100%;
 
@@ -341,9 +700,11 @@ body {
         width: 100%;
         height: 100%;
 
+        z-index: 64;
         overflow: hidden;
         color: white;
-        background-color: rgba(64, 64, 64, .75);
+        background-color: rgba(64, 64, 64, $background-opacity * .75);
+        transition: opacity 250ms 0s ease-in;
 
         > p {
 

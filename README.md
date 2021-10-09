@@ -117,15 +117,16 @@ Answer 2
 2. このプロジェクトをフォークする。
 3. `npm i`を叩きnpmモジュールをインストールする。
 4. `libs`ディレクトリを作る。
-5. [Font Awesome (Free for Web v5.15.4)](https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-web.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
-6. [sanitize.css (v12.0.1)](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に解凍する。
-7. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
-8. そのブランチでその機能を作る。
-9. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
-10. 新機能が完成しこのプロジェクトに反映させたい場合は、このプロジェクトの進捗を上の方法で取り込む。
-11. 自分のブランチからこのプロジェクトの`develop`ブランチへのプルリクエストを送る。
-12. レビューを受ける。
-13. 修正依頼があれば修正する。
-14. 問題がなければ無事、このプロジェクトにマージコミットが作られ反映されます！
+5. [Font Awesome (Free for Web v5.15.4)](https://use.fontawesome.com/releases/v5.15.4/fontawesome-free-5.15.4-web.zip) をダウンロードして`libs`ディレクトリ内に`fontawesome-free-5.15.4-web`というディレクトリ名で解凍する。
+6. [sanitize.css (v12.0.1)](https://github.com/csstools/sanitize.css/archive/refs/tags/12.0.1.zip) をダウンロードして`libs`ディレクトリ内に`sanitize.css-12.0.1`というディレクトリ名で解凍する。
+7. [focus-visibleのPolyfill (v5.2.0)](https://cdn.jsdelivr.net/npm/focus-visible@5.2.0/dist/focus-visible.min.js) をダウンロードして`libs/focus-visible-5.2.0`ディレクトリ内に`focus-visible.min.js`というファイル名で置く。
+8. `develop`ブランチから`feature/{機能名をSnake_caseで}`という名前のブランチを切る。
+9. そのブランチでその機能を作る。
+10. 途中でこのプロジェクトの進捗を取り込む場合は`Fetch upstream`ボタンを使用し、`develop`ブランチから自分のブランチにマージする。
+11. 新機能が完成しこのプロジェクトに反映させたい場合は、このプロジェクトの進捗を上の方法で取り込む。
+12. 自分のブランチからこのプロジェクトの`develop`ブランチへのプルリクエストを送る。
+13. レビューを受ける。
+14. 修正依頼があれば修正する。
+15. 問題がなければ無事、このプロジェクトにマージコミットが作られ反映されます！
 
   

@@ -1,0 +1,15 @@
+{
+  "title": "Battle Game",
+  "version": "1.0",
+  "added": 2019,
+  "description": "対戦型アクション(仮)ゲーム",
+  "previews": [
+    "画面.png"
+  ],
+  "game": {
+    "file": {
+      "win32": "えふえふ.exe"
+    },
+    "difficulty": 1
+  }
+}

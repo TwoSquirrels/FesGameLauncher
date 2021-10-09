@@ -26,9 +26,55 @@
 }
 
 .hide {
-  visibility: hidden;
+  // アニメーションの為 visibility: hidden; ではなく
+  opacity: 0.0;
+  // ちなみに当たり判定消すために
+  pointer-events: none;
 }
 
+// 優先順位の問題でうまくできないことがあるためスクリプトで対応
+// ただしスクリプトが実行される前に表示されてしまう恐れがあるため
+// あらかじめできるだけそれっぽくはしておく
 .erase {
+  position: absolute;
   display: none;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  opacity: 0.0;
+}
+
+@media screen and (max-width: 32em) {
+  .wide-only {
+    display: none;
+  }
+}
+
+.ellipsis {
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+}
+
+.difficulty {
+  .fa-laugh, .fa-smile, .fa-angry {
+    margin: 0 .125em;
+    filter: drop-shadow(0 0 .125em white);
+  }
+  .fa-laugh {
+    color: dodgerblue;
+  }
+  .fa-smile {
+    color: darkorange;
+  }
+  .fa-angry {
+    color: orangered;
+  }
 }

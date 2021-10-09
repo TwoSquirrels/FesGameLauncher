@@ -1,0 +1,9 @@
+{
+  "title": "対戦型ブロック崩しver1.0",
+  "version": "2019年度版",
+  "description": "ブロック崩し",
+  "executable": "対戦型ブロック崩し.exe",
+  "icon": "アイコン.png",
+    "file": "スクショ.png",
+  "difficulty": 0
+}

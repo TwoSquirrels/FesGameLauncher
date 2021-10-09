@@ -22,6 +22,7 @@
 
 /* imports */
 
+import * as dns from "dns";
 import * as electron from "electron";
 import * as fs from "fs-extra";
 import * as glob from "glob";
@@ -46,6 +47,18 @@ export const userDataPath = (...paths: string[]) =>
       : path.resolve("UserData"),
     ...paths
   );
+
+export const checkInternet = async (
+  timeout: number = 100,
+  host: string = "google.com"
+) =>
+  await Promise.race([
+    dns.promises
+      .resolve(host)
+      .then((_records) => true)
+      .catch((_err) => false),
+    new Promise((resolve) => setTimeout(resolve, timeout, false)),
+  ]);
 
 export async function init(log: unknown): Promise<void> {
   config.log = log;

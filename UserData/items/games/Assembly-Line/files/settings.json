@@ -1,0 +1,10 @@
+{
+    "title": "Assembly-Line",
+    "version": "2020年度版",
+    "description":
+    "2人で協力プレイが楽しめるパニックパーティーゲーム！！\nゲームが得意な方もそうでない方も一緒に充実した3分間を過ごしましょう！\n1人プレイにも対応",
+    "executable": "Assembly-Line.exe",
+    "icon": "icon.png",
+    "difficulty": 1,
+    "file": "screenshot.png"
+}

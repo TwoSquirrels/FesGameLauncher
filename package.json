@@ -38,7 +38,8 @@
         "sanitize.css-12.0.1/all.min.css"
       ],
       "js": [
-        "fontawesome-free-5.15.4-web/js/all.min.js"
+        "fontawesome-free-5.15.4-web/js/all.min.js",
+        "focus-visible-5.2.0/focus-visible.min.js"
       ]
     }
   },
@@ -64,6 +65,12 @@
       "requires": [
         "LICENSE.txt",
         "js/all.min.js"
+      ]
+    },
+    {
+      "name": "focus-visible-5.2.0",
+      "requires": [
+        "focus-visible.min.js"
       ]
     }
   ],

@@ -1,0 +1,8 @@
+{
+  "title": "Car Race",
+  "executable": "Car Race.exe",
+  "version": "2019年度版",
+  "description": "簡易的なレースゲームです\n↓↓↓↓※必ず読んでください↓↓↓↓\n操作方法：クリックしながらWASD \n(W:前, A:左, S:後ろ, D:右)",
+  "difficulty": 1,
+"file": "null.png"
+}
