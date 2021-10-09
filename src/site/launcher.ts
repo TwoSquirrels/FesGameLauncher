@@ -686,10 +686,10 @@ async function launch(
     // TODO: サイトと動画に対応させる
     alert("ごめんそれまだ未対応すぐ対応させるからまってて");
   } else if (isElectron()) {
-    // Electronは起動
-    await electron.items.launch(id, platform);
     // 展示モードなら戻る
     if ((await electron.constants.config).exhibition) switchTab("games");
+    // Electronは起動
+    await electron.items.launch(id, platform);
   } else {
     // サイトはDL
     const a = document.createElement("a");

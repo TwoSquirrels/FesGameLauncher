@@ -1,0 +1,16 @@
+{
+  "title": "対戦型ブロック崩しver1.0",
+  "version": "1.0",
+  "added": 2019,
+  "description": "ブロック崩し",
+  "author": "ロマン君",
+  "previews": [
+    "スクショ.png"
+  ],
+  "game": {
+    "file": {
+       "win32": "対戦型ブロック崩し.exe"
+    },
+    "difficulty": 0
+  }
+}
