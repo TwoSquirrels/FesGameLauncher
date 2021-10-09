@@ -1,0 +1,17 @@
+{
+  "title": "MAZAI QUEST",
+  "version": "1.0",
+  "added": 2019,
+  "description": 
+	"上級者向けのアクションシューティングゲームです。難しいです。\nあと難しいです。たぶん。\nコントローラー対応してます。",
+  "previews": [
+    "mazaiquest.mp4",
+    "mazaiquest.png"
+  ],
+  "game": {
+    "file": {
+      "win32": "MAZAI QUEST.exe"
+    },
+    "difficulty": 2
+  }
+}

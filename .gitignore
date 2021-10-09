@@ -3,6 +3,8 @@
 libs/
 build/
 dist/
+UserData/*
+!UserData/items
 
 ### Node template
 

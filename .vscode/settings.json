@@ -4,15 +4,22 @@
         "appender",
         "appenders",
         "cleanlog",
+        "dimgray",
         "fesgamelauncher",
         "fontawesome",
+        "globby",
+        "Konnendo",
         "linuxarm",
         "nodir",
+        "playsinline",
         "prenotice",
+        "royalblue",
         "sourcemapped",
         "thinsp",
         "waitkey",
         "webfonts",
+        "wifi",
         "winarm"
-    ]
+    ],
+    "discord.enabled": true
 }
