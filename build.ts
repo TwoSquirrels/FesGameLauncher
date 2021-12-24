@@ -360,6 +360,25 @@ tasks.set("BUILD", async (logger) => {
       let nowFile: string | undefined;
       try {
         config.site.version = config.version;
+        // ejsData
+        let dataCustomizer: (
+          logger: Log4js.Logger,
+          data: any
+        ) => (Promise<void> | void) | null = (() => {
+          let ejsDataModule: unknown;
+          try {
+            ejsDataModule = require("./tasks/build/ejsData");
+            logger.info("Loading ");
+          } catch (err) {
+            logger.info("");
+            return null;
+          }
+          if (typeof ejsDataModule !== "function")
+            throw new Error(
+              `tasks/build/ejsData module is not a function.\nIt's a ${typeof ejsDataModule}.`
+            );
+        })();
+        // 各ページ
         for (const ejsFile of await find("src/site/**/*.{ejs,html}", {
           nodir: true,
         })) {
@@ -372,9 +391,12 @@ tasks.set("BUILD", async (logger) => {
           // ページのパスを取得
           page.path = ejsFile.replace(/src\/site\/|\.(ejs|html)$/g, "");
           // ページの独自データを取得
-          page.data = (await find("tasks/build/ejsData.{js,ts}")).length
-            ? (page.data = require("./tasks/build/ejsData")(page))
-            : null;
+          page.data = null;
+          if (dataCustomizer) {
+            if (dataCustomizer.constructor.name === "AsyncFunction")
+              await dataCustomizer(logger, page);
+            else dataCustomizer(logger, page);
+          }
           // レンダリングしたEJSをHTMLファイルに書き込み
           await fs.outputFile(
             `build/site/${page.path}.html`,
@@ -633,7 +655,10 @@ tasks.set("PACKAGE", async (logger) => {
         ).map(async (exe) => {
           for (const userData of await find("UserData/*")) {
             if (userData === "UserData/log.txt") continue;
-            await fs.copy(userData, `${path.dirname(exe)}${userData.replace(/UserData/, "")}`);
+            await fs.copy(
+              userData,
+              `${path.dirname(exe)}${userData.replace(/UserData/, "")}`
+            );
           }
           logger.debug(`Copied UserData to "${path.dirname(exe)}".`);
         })
@@ -650,6 +675,18 @@ tasks.set("PACKAGE", async (logger) => {
     throw new Error();
   }
   logger.info("Completed packaging!");
+});
+
+// Web公開用
+tasks.set("PUBLISH", async (logger) => {
+  logger.info("Building a site for publication...");
+  try {
+  } catch (err) {
+    logger.error(err);
+    logger.error("Failed to build.");
+    throw new Error();
+  }
+  logger.info("Completed building!");
 });
 
 ////////////////////////////////////////////////////////////////////////////////
