@@ -5,6 +5,8 @@
 
 文化祭のためのゲームランチャー
 
+これは**アーカイブ**です！  
+開発は中止し、 [asanobuturi/APC-Exhibits](//github.com/APC-Exhibits) にて作り直すことにしました。
 
 ## Demo
 
@@ -94,12 +96,12 @@ Answer 2
 
 **PC Client:** Electron
 
-**Web Client:** GitHub Pages
+~~**Web Client:** GitHub Pages~~
 
   
 ## Contributing
 
-このプロジェクトは皆様からの貢献を歓迎します。
+~~このプロジェクトは皆様からの貢献を歓迎します。~~
 
 お手伝いをいただくには、以下の方法があります:
 
