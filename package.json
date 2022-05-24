@@ -1,0 +1,133 @@
+{
+  "$Basic": "================ 基本の情報 ================",
+  "name": "fesgamelauncher",
+  "version": "1.0.0-SNAPSHOT",
+  "description": "文化祭のためのゲームランチャー",
+  "scripts": {
+    "tasks": "ts-node build.ts",
+    "cleanlog": "ts-node build.ts cleanlog",
+    "clean": "ts-node build.ts clean",
+    "build": "ts-node build.ts clean build",
+    "electron": "ts-node build.ts electron",
+    "server": "ts-node build.ts server",
+    "start": "ts-node build.ts clean build electron",
+    "site": "ts-node build.ts clean build server",
+    "package": "ts-node build.ts package",
+    "release": "ts-node build.ts clean build package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwoSquirrels/FesGameLauncher.git"
+  },
+  "keywords": [
+    "TypeScript",
+    "EJS",
+    "Sass",
+    "Font Awesome",
+    "Electron"
+  ],
+  "author": "APC",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/TwoSquirrels/FesGameLauncher/issues"
+  },
+  "homepage": "https://github.com/TwoSquirrels/FesGameLauncher#readme",
+  "$PACKAGE": "================ パッケージングに必要な情報 ================",
+  "main": "build/package/main.js",
+  "build": {
+    "appId": "io.github.asanobuturi.${name}",
+    "productName": "FesGameLauncher",
+    "copyright": "(c) 2021 APC",
+    "files": [
+      "build/package/**/*"
+    ],
+    "directories": {
+      "output": "dist/electron/${productName}-${os}_${arch}-v${version}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": "x64"
+        },
+        {
+          "target": "portable",
+          "arch": "ia32"
+        }
+      ],
+      "icon": "build/package/favicon.ico"
+    }
+  },
+  "$BUILD": "================ サイトのビルド時に必要な情報 ================",
+  "site": {
+    "name": "浅野物理部の自作ゲーム置き場",
+    "message": "プロジェクトのリポジトリ -> https://github.com/asanobuturi/FesGameLauncher\nサイトの中身 -> https://github.com/asanobuturi/FesGameLauncher/tree/gh-pages",
+    "url": "http://localhost:8080/",
+    "libs": {
+      "css": [
+        "sanitize.css-12.0.1/all.min.css"
+      ],
+      "js": [
+        "fontawesome-free-5.15.4-web/js/all.min.js",
+        "focus-visible-5.2.0/focus-visible.min.js"
+      ]
+    }
+  },
+  "libs": [
+    {
+      "name": "sanitize.css-12.0.1",
+      "requires": [
+        "LICENSE.md",
+        {
+          "name": "all.min.css",
+          "minify": "css",
+          "files": [
+            "sanitize.css",
+            "forms.css",
+            "assets.css",
+            "typography.css"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fontawesome-free-5.15.4-web",
+      "requires": [
+        "LICENSE.txt",
+        "js/all.min.js"
+      ]
+    },
+    {
+      "name": "focus-visible-5.2.0",
+      "requires": [
+        "focus-visible.min.js"
+      ]
+    }
+  ],
+  "$Dependencies": "================ 依存関係 ================",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "glob": "^7.2.0",
+    "log4js": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/dateformat": "^3.0.1",
+    "@types/ejs": "^3.0.7",
+    "@types/electron": "^1.6.10",
+    "@types/express": "^4.17.13",
+    "@types/fs-extra": "^9.0.12",
+    "@types/glob": "^7.1.4",
+    "@types/node": "^16.4.13",
+    "@types/opener": "^1.4.0",
+    "dateformat": "^4.6.3",
+    "ejs": "^3.1.6",
+    "electron": "^13.5.1",
+    "electron-builder": "^22.13.1",
+    "express": "^4.17.1",
+    "opener": "^1.5.2",
+    "sass": "^1.37.5",
+    "terser": "^5.7.2",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  }
+}
