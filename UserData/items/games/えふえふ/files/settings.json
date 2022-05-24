@@ -1,9 +1,0 @@
-{
-  "title": "Battle Game",
-  "version": "2019年度版",
-  "description": "対戦型アクション(仮)ゲーム",
-  "executable": "えふえふ.exe",
-  "icon": "画面.bmp",
-"file":"画面.bmp",
-  "difficulty": 1
-}

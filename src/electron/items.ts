@@ -202,7 +202,6 @@ export function register() {
   electron.ipcMain.handle(
     "items.launch",
     async (_event, id: string, platform: string, args: string[]) => {
-      // argsは使用していません
       const info = await utils.find(
         utils.userDataPath(`items/games/${id}/info.json`),
         { nodir: true }
@@ -214,17 +213,19 @@ export function register() {
       const game = await fs.readJson(info[0]);
       // launch
       logger.info(
-        `Launching "${id}" as ${platform}... (args: ${JSON.stringify(args)})`
+        `Launching "${id}" as ${platform}... (args (still invalid): ${JSON.stringify(args)})`
       );
       if (!game.game?.file?.[platform]) {
         logger.error(`${id}.game.file[${platform}] does not exist.`);
         throw new Error(`${id}.game.file[${platform}] does not exist.`);
       }
       const exePath = utils.userDataPath(`items/games/${id}/files/${game.game.file[platform]}`);
+      // TODO: argsの対応
       switch (platform) {
         case "win32":
         case "winarm":
         case "win64":
+          // 強引な起動方法 (いろいろやったけどなんかこれしか上手く動かなかった)
           child.exec(`start "" /d "${path.dirname(exePath)}" "${path.basename(exePath)}"`);
           break;
         case "osx":

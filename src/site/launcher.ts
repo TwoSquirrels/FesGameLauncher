@@ -693,8 +693,8 @@ async function launch(
   } else {
     // サイトはDL
     const a = document.createElement("a");
-    a.href = `${extra.top()}${constants.page.top}items/games/${id}/files.zip`;
-    a.download = `${id}.zip`;
+    a.href = `${extra.top()}${constants.page.top}items/games/${id}/${platform}.zip`;
+    a.download = `${id}-${platform}.zip`;
     a.click();
   }
 }

@@ -1,9 +1,0 @@
-{
-  "title": "行けよ　進めよ　うちまくれ！",
-  "version": "2019年度版",
-  "description": "↑↓→←の四つのキーを決められた順番に押して相手を倒していくゲーム",
-  "executable": "DxLibTmplate5.exe",
-  "icon": "icon.png",
-  "difficulty":0,
-"file": "unchi.png"
-}
